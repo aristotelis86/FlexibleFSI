@@ -28,6 +28,7 @@ class ControlPoint {
   ControlPoint(PVector position_, float m,  float thk, Window myWindow_) {
     position = position_;
     velocity = new PVector(0, 0);
+    acceleration = new PVector(0, 0);
     force = new PVector(0, 0);
     mass = m;
     
@@ -41,6 +42,7 @@ class ControlPoint {
     
     positionOld = position.copy();
     velocityOld = velocity.copy();
+    accelerationOld = acceleration.copy();
   }
   
   ControlPoint(PVector position_, float m, Window myWindow_) {this(position_, m,  1, myWindow_);}
@@ -62,6 +64,46 @@ class ControlPoint {
     ellipse(myWindow.px(position.x), myWindow.py(position.y), 1.3*diameter*myWindow.x.r, 1.3*diameter*myWindow.y.r);
     this.display();
   }
+  
+  // Update the position
+  void UpdatePosition(float x, float y) {
+    position.x = x;
+    position.y = y;
+  }
+  
+  // Update the velocity
+  void UpdateVelocity(float x, float y) {
+    velocity.x = x;
+    velocity.y = y;
+  }
+  
+  // Store old state
+  void StoreOld() {
+    positionOld = position.copy();
+    velocityOld = velocity.copy();
+    accelerationOld = acceleration.copy();
+  }
+  
+  // For testing...
+  void randomWalk() {
+    this.StoreOld();
+    float ex, ey, vx, vy, x, y;
+    ex = random(1);
+    ey = random(1);
+    
+    if (ex>.65) vx = 0.1;
+    else vx = -0.1;
+    if (ey>.5) vy = 0.1;
+    else vy = -0.1;
+    this.UpdateVelocity(vx,vy);
+    x = positionOld.x + velocity.x;
+    y = positionOld.y + velocity.y;
+    this.UpdatePosition(x,y);
+  }
+  
+  
+  
+  
   
   
   
@@ -109,11 +151,7 @@ class ControlPoint {
   //  return d;
   //}
   
-  //// For testing...
-  //void move() {
-  //  PVector randVel = new PVector(random(-1,1), random(-1,1));
-  //  position.add(randVel);
-  //}
+  
   
   //// Update methods based on Predictor-Corrector scheme 
   //void update( float t ) {
@@ -160,21 +198,9 @@ class ControlPoint {
   //  UpdateVelocity( vx, vy );
   //}
   
-  //void StoreOld() {
-  //  positionOld = position.copy();
-  //  velocityOld = velocity.copy();
-  //  accelerationOld = acceleration.copy();
-  //}
   
-  //void UpdatePosition(float x, float y) {
-  //  position.x = x;
-  //  position.y = y;
-  //}
   
-  //void UpdateVelocity(float x, float y) {
-  //  velocity.x = x;
-  //  velocity.y = y;
-  //}
+  
   
   //// Boundary collision detection and resolution
   //void BoundCollision( float r ) {
