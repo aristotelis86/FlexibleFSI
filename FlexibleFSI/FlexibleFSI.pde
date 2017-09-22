@@ -14,7 +14,7 @@ void settings(){
 void setup() {
   
   Window view = new Window(1, 1, nx, ny, 0, 0, width, height);
-  cpoints = new ControlPoint( new PVector(nx/2., ny/2. ), 10,  49, view );
+  cpoints = new ControlPoint( new PVector(nx/2., ny/2. ), 10,  5, view );
   
   
 } // end of setup
@@ -22,6 +22,8 @@ void setup() {
 
 /************************ Draw Section ************************/
 void draw() {
+  
   cpoints.display();
+  cpoints.impDisplay();
   //noLoop();
 }
