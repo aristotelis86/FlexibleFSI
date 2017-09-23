@@ -16,7 +16,6 @@ class ControlPoint {
   PVector force; // force acting on the point-mass
   PVector impForce; // impact force tracking
   float mass; // mass of the point
-  boolean fixed; // fix the particle at its location
   boolean xfixed; // fix the particle at its y-axis
   boolean yfixed; // fix the particle at its x-ayis
   
@@ -32,7 +31,6 @@ class ControlPoint {
     force = new PVector(0, 0);
     mass = m;
     
-    fixed = false;
     xfixed = false;
     yfixed = false;
     
@@ -91,14 +89,180 @@ class ControlPoint {
     ex = random(1);
     ey = random(1);
     
-    if (ex>.65) vx = 0.1;
-    else vx = -0.1;
-    if (ey>.5) vy = 0.1;
-    else vy = -0.1;
+    if (ex<.05) vx = -1*velocity.x;
+    else vx = velocity.x;
+    if (ey<.05) vy = -1*velocity.y;
+    else vy = velocity.y;
+    
     this.UpdateVelocity(vx,vy);
     x = positionOld.x + velocity.x;
     y = positionOld.y + velocity.y;
     this.UpdatePosition(x,y);
+  }
+  
+  // Clear any forces acting on the particle
+  void clearForce() { force.mult(0); }
+  
+  // Accumulate all the forces acting on the particle
+  void ApplyForce(PVector FF) { force.add( FF ); }
+  
+  // Find the acceleration due to forces
+  void calculateAcceleration() {
+    PVector accel = force.copy();
+    acceleration = accel.div(mass);
+  }
+  
+  // Make the particle free of constraints
+  void makeFree() {
+    xfixed = false;
+    yfixed = false;
+  }
+  void makeFreex() { xfixed = false; }
+  void makeFreey() { yfixed = false; }
+  
+  // Constrain the particle at its location
+  void makeFixed() {
+    xfixed = true;
+    yfixed = true;
+  }
+  void makeFixedx() { xfixed = true; }
+  void makeFixedy() { yfixed = true; }
+  
+  boolean isFixedx() { return xfixed; }
+  boolean isFixedy() { return yfixed; }
+  
+  // Update methods based on Predictor-Corrector scheme 
+  void update( float t ) {
+    if ((!this.isFixedx()) || (!this.isFixedy())) {
+      calculateAcceleration();
+      StoreOld();
+      float x, y, vx, vy;
+      
+      if (!this.isFixedx()) {
+        x = position.x + t*velocity.x;
+        vx = velocity.x + t*acceleration.x;
+      }
+      else {
+        x = position.x;
+        vx = velocity.x;
+      }
+      if (!this.isFixedy()) {
+        y = position.y + t*velocity.y;
+        vy = velocity.y + t*acceleration.y;
+      }
+      else {
+        y = position.y;
+        vy = velocity.y;
+      }
+      UpdatePosition( x, y );
+      UpdateVelocity( vx, vy );
+    }
+  }
+  
+  void update2( float t ) {
+    if ((!this.isFixedx()) || (!this.isFixedy())) {
+      calculateAcceleration();
+      float x, y, vx, vy;
+      if (!this.isFixedx()) {
+        x = positionOld.x + .5*t*(velocityOld.x + velocity.x);
+        vx = velocityOld.x + .5*t*(accelerationOld.x + acceleration.x);
+      }
+      else {
+        x = position.x;
+        vx = velocity.x;
+      }
+      if (!this.isFixedy()) {
+        y = positionOld.y + .5*t*(velocityOld.y + velocity.y);
+        vy = velocityOld.y + .5*t*(accelerationOld.y + acceleration.y);
+      }
+      else {
+        y = position.y;
+        vy = velocity.y;
+      }
+      UpdatePosition( x, y );
+      UpdateVelocity( vx, vy );
+    }
+  }
+  
+  // Alternative update methods based on Predictor-Corrector scheme 
+  void updateAlt( float t ) {
+    if ((!this.isFixedx()) || (!this.isFixedy())) {
+      calculateAcceleration();
+      StoreOld();
+      float x, y, vx, vy;
+      
+      if (!this.isFixedx()) {
+        x = position.x + t*velocity.x + 0.5*acceleration.x*sq(t);
+        vx = velocity.x + t*acceleration.x;
+      }
+      else {
+        x = position.x;
+        vx = velocity.x;
+      }
+      if (!this.isFixedy()) {
+        y = position.y + t*velocity.y + 0.5*acceleration.y*sq(t);
+        vy = velocity.y + t*acceleration.y;
+      }
+      else {
+        y = position.y;
+        vy = velocity.y;
+      }
+      UpdatePosition( x, y );
+      UpdateVelocity( vx, vy );
+    }
+  }
+  
+  void updateAlt2( float t ) {
+    if ((!this.isFixedx()) || (!this.isFixedy())) {
+      calculateAcceleration();
+      float vx, vy;
+      if (!this.isFixedx()) vx = velocityOld.x + .5*t*(accelerationOld.x + acceleration.x);
+      else vx = velocity.x;
+      if (!this.isFixedy()) vy = velocityOld.y + .5*t*(accelerationOld.y + acceleration.y);
+      else vy = velocity.y;
+      UpdateVelocity( vx, vy );
+    }
+  }
+  
+  // Boundary collision detection and resolution
+  void BoundCollision( float e ) {
+    if (position.x < diameter/2) this.ResolveBoundCollision("West", e);
+    if (position.y < diameter/2) this.ResolveBoundCollision("North", e);
+    if (position.x > myWindow.x.inE - diameter/2) this.ResolveBoundCollision("East", e);
+    if (position.y > myWindow.y.inE - diameter/2) this.ResolveBoundCollision("South", e);
+  }
+  void BoundCollision() { this.BoundCollision( 1 ); }
+  
+  // Resolve boundary collisions (update pos + vel)
+  void ResolveBoundCollision(String wall, float e) {
+    if (wall.equals("South") == true) {
+      // handle south
+      float y = myWindow.y.inE - diameter/2;
+      this.UpdatePosition(position.x,y);
+      float vy = -e*velocity.y;
+      this.UpdateVelocity(velocity.x, vy);
+    }
+    if (wall.equals("North") == true) {
+      // handle north
+      float y = diameter/2;
+      this.UpdatePosition(position.x,y);
+      float vy = -e*velocity.y;
+      this.UpdateVelocity(velocity.x, vy);
+    }
+    if (wall.equals("East") == true) {
+      // handle east
+      float x = myWindow.x.inE - diameter/2;
+      this.UpdatePosition(x,position.y);
+      float vx = -e*velocity.x;
+      this.UpdateVelocity(vx, velocity.y);
+    }
+    if (wall.equals("West") == true) {
+      // handle west
+      float x = diameter/2;
+      this.UpdatePosition(x,position.y);
+      float vx = -e*velocity.x;
+      this.UpdateVelocity(vx, velocity.y);
+    }
   }
   
   
@@ -108,136 +272,29 @@ class ControlPoint {
   
   
   
-  //// Clear any forces acting on the particle
-  //void clearForce() {
-  //  force.mult(0);
-  //}
   
-  //// Accumulate all the forces acting on the particle
-  //void applyForce(PVector FF) { force.add( FF ); }
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   //// Apply impact forces to main force variable
   //void applyImpForce() { force.add( impForce ); }
   
-  //// Find the acceleration due to forces
-  //void calculateAcceleration() {
-  //  PVector accel = force.copy();
-  //  acceleration = accel.div(mass);
-  //}
   
-  //// Make the particle free of constraints
-  //void makeFree() {
-  //  fixed = false;
-  //  xfixed = false;
-  //  yfixed = false;
-  //}
   
-  //void makeFreex() { xfixed = false; }
-  //void makeFreey() { yfixed = false; }
   
-  //// Constrain the particle at its location
-  //void makeFixed() {
-  //  fixed = true;
-  //  xfixed = true;
-  //  yfixed = true;
-  //}
-  
-  //void makeFixedx() { xfixed = true; }
-  //void makeFixedy() { yfixed = true; }
   
   //// Get the distance between control points
   //float distance(ControlPoint other) {
   //  float d = this.position.dist(other.position);
   //  return d;
   //}
-  
-  
-  
-  //// Update methods based on Predictor-Corrector scheme 
-  //void update( float t ) {
-  //  calculateAcceleration();
-  //  StoreOld();
-  //  float x, y, vx, vy;
-  //  x = position.x + t*velocity.x;
-  //  y = position.y + t*velocity.y;
-  //  vx = velocity.x + t*acceleration.x;
-  //  vy = velocity.y + t*acceleration.y;
-  //  UpdatePosition( x, y );
-  //  UpdateVelocity( vx, vy );
-  //}
-  
-  //void update2( float t ) {
-  //  calculateAcceleration();
-  //  float x, y, vx, vy;
-  //  x = positionOld.x + .5*t*(velocityOld.x + velocity.x);
-  //  y = positionOld.y + .5*t*(velocityOld.y + velocity.y);
-  //  vx = velocityOld.x + .5*t*(accelerationOld.x + acceleration.x);
-  //  vy = velocityOld.y + .5*t*(accelerationOld.y + acceleration.y);
-  //  UpdatePosition( x, y );
-  //  UpdateVelocity( vx, vy );
-  //}
-  
-  //// Alternative update methods based on Predictor-Corrector scheme 
-  //void updateAlt( float t ) {
-  //  calculateAcceleration();
-  //  StoreOld();
-  //  float x, y, vx, vy;
-  //  x = position.x + t*velocity.x + 0.5*acceleration.x*sq(t);
-  //  y = position.y + t*velocity.y + 0.5*acceleration.y*sq(t);
-  //  vx = velocity.x + t*acceleration.x;
-  //  vy = velocity.y + t*acceleration.y;
-  //  UpdatePosition( x, y );
-  //  UpdateVelocity( vx, vy );
-  //}
-  
-  //void updateAlt2( float t ) {
-  //  calculateAcceleration();
-  //  float vx, vy;
-  //  vx = velocityOld.x + .5*t*(accelerationOld.x + acceleration.x);
-  //  vy = velocityOld.y + .5*t*(accelerationOld.y + acceleration.y);
-  //  UpdateVelocity( vx, vy );
-  //}
-  
-  
-  
-  
-  
-  //// Boundary collision detection and resolution
-  //void BoundCollision( float r ) {
-  //  if (position.x < 0) {
-  //    float x = thick/2;
-  //    float y = position.y;
-  //    float vx = -r*velocity.x;
-  //    float vy = velocity.y;
-  //    UpdatePosition( x, y );
-  //    UpdateVelocity( vx, vy );
-  //  }
-  //  if (position.y < 0) {
-  //    float x = position.x;
-  //    float y = thick/2;
-  //    float vy = -r*velocity.y;
-  //    float vx = velocity.x;
-  //    UpdatePosition( x, y );
-  //    UpdateVelocity( vx, vy );
-  //  }
-  //  if (position.x > myWindow.x.inE - thick/2) {
-  //    float x = myWindow.x.inE - thick/2;
-  //    float y = position.y;
-  //    float vx = -r*velocity.x;
-  //    float vy = velocity.y;
-  //    UpdatePosition( x, y );
-  //    UpdateVelocity( vx, vy );
-  //  }
-  //  if (position.y > myWindow.y.inE - thick/2) {
-  //    float x = position.x;
-  //    float y = myWindow.y.inE - thick/2;
-  //    float vy = -r*velocity.y;
-  //    float vx = velocity.x;
-  //    UpdatePosition( x, y );
-  //    UpdateVelocity( vx, vy );
-  //  }
-  //}
-  //void BoundCollision() { BoundCollision( 1 ); }
   
   //void CPointCPointCollision( ControlPoint other ) {
   //  float dd = distance( other );
