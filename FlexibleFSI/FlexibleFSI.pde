@@ -5,6 +5,8 @@ int ny = 150; // y-dir resolution
 
 float x, y, vx, vy;
 PVector gravity = new PVector(5,-5);
+
+PrintWriter myInfo;
 /************************ Setup Section ************************/
 Window view; // convert pixels to non-dim frame
 ControlPoint cpoints;
@@ -16,9 +18,10 @@ void settings(){
 void setup() {
   
   Window view = new Window(1, 1, nx, ny, 0, 0, width, height);
-  cpoints = new ControlPoint( new PVector(nx/2., ny/2. ), 5,  5, view );
+  cpoints = new ControlPoint( new PVector(nx/2., ny/2. ), 5,  10, view );
   //cpoints.makeFixedx();
   
+  myInfo = createWriter("./info/cpoints.txt");
 } // end of setup
 
 
@@ -32,5 +35,12 @@ void draw() {
   cpoints.updateAlt( 0.1 );
   cpoints.updateAlt2( 0.1 );
   cpoints.BoundCollision(.5);
-  println(cpoints.position);
+  cpoints.dampInfo(myInfo);
+}
+
+
+void keyPressed() {
+  myInfo.flush();  // Writes the remaining data to the file
+  myInfo.close();  // Finishes the file
+  exit();  // Stops the program
 }

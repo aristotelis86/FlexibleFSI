@@ -265,6 +265,9 @@ class ControlPoint {
     }
   }
   
+  void dampInfo( PrintWriter outFile ) {
+    outFile.println(position.x+","+position.y+","+velocity.x+","+velocity.y+","+force.x+","+force.y);
+  }
   
   
   
