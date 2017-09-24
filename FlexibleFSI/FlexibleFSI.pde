@@ -2,16 +2,12 @@
 
 int nx = 150; // x-dir resolution
 int ny = 150; // y-dir resolution
-int N = 2;
-
-
-PVector gravity = new PVector(0,0);
+int N = 6;
+PVector gravity = new PVector(0,3);
 
 /************************ Setup Section ************************/
 Window view; // convert pixels to non-dim frame
-ControlPoint [] cpoints;
-Spring spring;
-CollisionHandler collider;
+FreeFallSprings demo;
 
 void settings(){
     size(600, 600);
@@ -20,31 +16,17 @@ void settings(){
 void setup() {
   
   Window view = new Window(1, 1, nx, ny, 0, 0, width, height);
+  demo = new FreeFallSprings( 6, gravity, view );
   
-  cpoints = new ControlPoint[N];
-  cpoints[0] = new ControlPoint( new PVector(nx/3.,ny/2.), 5,  10, view );
-  cpoints[1] = new ControlPoint( new PVector(2*nx/3.,ny/2.), 5,  10, view );
-  
-  spring = new Spring(cpoints[0], cpoints[1], nx/8., 5, 0.5, 1, view );
-  
-  collider = new CollisionHandler( cpoints );
 } // end of setup
 
 
 /************************ Draw Section ************************/
 void draw() {
   background(185);
-  for (ControlPoint cp : cpoints) cp.clearForce();
-  spring.ApplyAllForces();
-  for (ControlPoint cp : cpoints) {
-    cp.ApplyForce( gravity );
-    cp.updateAlt( 0.1 );
-    cp.updateAlt2( 0.1 );
-  }
-  collider.HandleCollisions();
-  for (ControlPoint cp : cpoints) cp.display();
-  spring.display();
-  //saveFrame("./movie/frame_######.png");
+  
+  demo.RunDemo();
+  saveFrame("./movie/frame_######.png");
 }
 
 
