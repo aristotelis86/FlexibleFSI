@@ -2,7 +2,7 @@
 
 int nx = 150; // x-dir resolution
 int ny = 150; // y-dir resolution
-int N = 2;
+int N = 5;
 
 float x, y, vx, vy;
 PVector gravity = new PVector(25,25);
@@ -18,7 +18,7 @@ void settings(){
 }
 
 void setup() {
-  
+  frameRate(10);
   Window view = new Window(1, 1, nx, ny, 0, 0, width, height);
   cpoints = new ControlPoint[N];
   myInfo = new PrintWriter[N];

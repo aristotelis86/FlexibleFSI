@@ -8,7 +8,8 @@ class CollisionHandler {
   
   ArrayList<ControlPoint> CPi = new ArrayList<ControlPoint>();
   ArrayList<ControlPoint> CPj = new ArrayList<ControlPoint>();
-  FloatList RewT = new FloatList();
+  FloatList RewTi = new FloatList();
+  FloatList RewTj = new FloatList();
   
   ArrayList<ControlPoint> FastCPi = new ArrayList<ControlPoint>();
   ArrayList<ControlPoint> FastCPj = new ArrayList<ControlPoint>();
@@ -93,9 +94,11 @@ class CollisionHandler {
           if (dij<=clearRad) {
             CPi.add(cpi);
             CPj.add(cpj);
-            float radRatio = cpi.diameter/cpj.diameter;
-            float distRatio = dij/clearRad;
-            RewT.append(distRatio);
+            float penet = 0.5*(cpi.diameter + cpj.diameter) - dij;
+            float rewindi = penet/(0.5*cpi.diameter);
+            float rewindj = penet/(0.5*cpj.diameter);
+            RewTi.append(rewindi);
+            RewTj.append(rewindj);
             // calculate how much penetration we have....
             // works like that BUT should make a sketch...
             // does not make sense to fully rewind if dij=clearRad
@@ -151,9 +154,10 @@ class CollisionHandler {
     for (int ij=0; ij<N; ij++) {
       ControlPoint cpi = CPi.get(ij);
       ControlPoint cpj = CPj.get(ij);
-      float rewT = RewT.get(ij);
-      cpi.rewindPosition(rewT);
-      cpj.rewindPosition(rewT);
+      float rewTi = RewTi.get(ij);
+      float rewTj = RewTj.get(ij);
+      cpi.rewindPosition(rewTi);
+      cpj.rewindPosition(rewTj);
       float Vxi = (cpi.velocity.x*(cpi.mass-cpj.mass)/(cpi.mass+cpj.mass)) + (2*cpj.mass/(cpi.mass+cpj.mass))*cpj.velocity.x;
       float Vyi = (cpi.velocity.y*(cpi.mass-cpj.mass)/(cpi.mass+cpj.mass)) + (2*cpj.mass/(cpi.mass+cpj.mass))*cpj.velocity.y;
       float Vxj = (cpj.velocity.x*(cpj.mass-cpi.mass)/(cpi.mass+cpj.mass)) + (2*cpj.mass/(cpi.mass+cpj.mass))*cpi.velocity.x;
@@ -163,6 +167,8 @@ class CollisionHandler {
     }
     CPi = new ArrayList<ControlPoint>();
     CPj = new ArrayList<ControlPoint>();
+    RewTi = new FloatList();
+    RewTj = new FloatList();
   }
   
   // Resolve Fast moving CPoint-CPoint collisions
@@ -179,8 +185,8 @@ class CollisionHandler {
       float Vyj = (cpj.velocity.y*(cpj.mass-cpi.mass)/(cpi.mass+cpj.mass)) + (2*cpj.mass/(cpi.mass+cpj.mass))*cpi.velocity.y;
       cpi.UpdateVelocity( Vxi, Vyi );
       cpj.UpdateVelocity( Vxj, Vyj );
-      cpi.impUpdate(tcol);
-      cpj.impUpdate(tcol);
+      //cpi.impUpdate(tcol);
+      //cpj.impUpdate(tcol);
       delay(3000);
     }
     FastCPi = new ArrayList<ControlPoint>();
