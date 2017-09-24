@@ -250,28 +250,7 @@ class ControlPoint {
   
   
   
-  // Resolve CPoint-CPoint collisions event
-  void ResolveCPointCPoint ( ControlPoint other, float tt ) {
-    float xnewmine, ynewmine, xnewother, ynewother;
-    
-    xnewmine = positionOld.x + tt*(position.x - positionOld.x);
-    ynewmine = positionOld.y + tt*(position.y - positionOld.y);
-    xnewother = other.positionOld.x + tt*(other.position.x - other.positionOld.x);
-    ynewother = other.positionOld.y + tt*(other.position.y - other.positionOld.y);
-    
-    float Vxi = (this.velocity.x*(this.mass-other.mass)/(this.mass+other.mass)) + (2*other.mass/(this.mass+other.mass))*other.velocity.x;
-    float Vyi = (this.velocity.y*(this.mass-other.mass)/(this.mass+other.mass)) + (2*other.mass/(this.mass+other.mass))*other.velocity.y;
-    float Vxj = (other.velocity.x*(other.mass-this.mass)/(this.mass+other.mass)) + (2*other.mass/(this.mass+other.mass))*this.velocity.x;
-    float Vyj = (other.velocity.y*(other.mass-this.mass)/(this.mass+other.mass)) + (2*other.mass/(this.mass+other.mass))*this.velocity.y;
-    //xnewmine = xnewmine + (1-.6*tt)*Vxi;
-    //ynewmine = ynewmine + (1-.6*tt)*Vyi;
-    //xnewother = xnewother + (1-.6*tt)*Vxj;
-    //ynewother = ynewother + (1-.6*tt)*Vyj;
-    this.UpdatePosition( xnewmine, ynewmine );
-    other.UpdatePosition( xnewother, ynewother );
-    this.UpdateVelocity( Vxi, Vyi );
-    other.UpdateVelocity( Vxj, Vyj );
-  }
+  
   
   
   
