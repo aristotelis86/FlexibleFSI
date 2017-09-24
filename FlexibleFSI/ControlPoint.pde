@@ -1,8 +1,12 @@
-//======================= ControlPoint Class ====================== //
+/**********************************************************************
+      ControlPoint class: Creates the control points of 
+      a flexible structure and handles their behaviour
+      during the runs. 
 
-// ------------------- Example Code for Testing ------------------- //
+Example code:
+      (To be filled)
 
-// ---------------------------------------------------------------- //
+**********************************************************************/
 
 class ControlPoint {
   //================= Attributes ====================//

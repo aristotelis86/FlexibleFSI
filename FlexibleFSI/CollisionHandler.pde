@@ -1,3 +1,12 @@
+/**********************************************************************
+      CollisionHandler class: ControlPoints and/or FlexibleSheets
+      are gathered by this class to handle any collisions during
+      the simulation. Detection and resolution are separated.
+
+Example code:
+      (To be filled)
+
+**********************************************************************/
 class CollisionHandler {
   //================= Attributes ====================//
   int Ncp; // number of control points to consider
