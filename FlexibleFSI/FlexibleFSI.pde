@@ -29,6 +29,7 @@ void draw() {
   background(185);
   
   Demo.runDemo();
+  saveFrame("./movie/frame_######.png");
 }
 
 
