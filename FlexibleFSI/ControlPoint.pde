@@ -242,36 +242,8 @@ class ControlPoint {
     UpdatePosition(x,y);
   }
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
   //// Apply impact forces to main force variable
   //void applyImpForce() { force.add( impForce ); }
-  
-  
-  
-  
-  
-  
-  
-  
   //void FastCPointCPointCollision( ControlPoint other ) {
   //  float tol = 1e-6;
   //  float tcol, denom, Rt;
@@ -502,5 +474,6 @@ class ControlPoint {
   //  other1.UpdateVelocity( Vxj, Vyj );
   //  other2.UpdateVelocity( Vxj, Vyj );
   //}
+  
 
 } // end of ControlPoint class
