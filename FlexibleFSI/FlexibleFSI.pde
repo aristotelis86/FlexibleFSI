@@ -4,33 +4,22 @@ int nx = 150; // x-dir resolution
 int ny = 150; // y-dir resolution
 int N = 15;
 
-float x, y, vx, vy;
-PVector gravity = new PVector(25,25);
+
+PVector gravity = new PVector(6,6);
 
 /************************ Setup Section ************************/
 Window view; // convert pixels to non-dim frame
-ControlPoint [] cpoints;
-PrintWriter [] myInfo;
-CollisionHandler collider;
+SimpleCollisionTest Demo;
 
 void settings(){
     size(600, 600);
 }
 
 void setup() {
-  frameRate(10);
+  
   Window view = new Window(1, 1, nx, ny, 0, 0, width, height);
-  cpoints = new ControlPoint[N];
-  myInfo = new PrintWriter[N];
   
-  for (int i=0; i<N; i++) {
-    cpoints[i] = new ControlPoint( new PVector(random(nx),random(ny)), 5,  10, view );
-    myInfo[i] = createWriter("./info/cpoints"+i+".txt");
-  }
-  
-  cpoints[0].UpdatePosition(nx,ny);
-  cpoints[1].UpdatePosition(nx/2.,ny/2.);
-  collider = new CollisionHandler( cpoints );
+  Demo = new SimpleCollisionTest( N, gravity, view );
   
 } // end of setup
 
@@ -39,23 +28,10 @@ void setup() {
 void draw() {
   background(185);
   
-  for (ControlPoint cp : cpoints) {
-    cp.clearForce();
-    cp.ApplyForce( gravity );
-    cp.updateAlt( 0.1 );
-    cp.updateAlt2( 0.1 );
-  }
-  
-  collider.HandleCollisions();
-  for (ControlPoint cp : cpoints) cp.display();
-  for (int i=0; i<N; i++) cpoints[i].dampInfo(myInfo[i]);
+  Demo.runDemo();
 }
 
 
 void keyPressed() {
-  for (int i=0; i<N; i++) {
-    myInfo[i].flush();  // Writes the remaining data to the file
-    myInfo[i].close();  // Finishes the file
-  }
-  exit();  // Stops the program
+  Demo.terminateDemo();
 }
