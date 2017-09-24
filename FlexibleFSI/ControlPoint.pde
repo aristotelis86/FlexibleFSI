@@ -59,8 +59,7 @@ class ControlPoint {
   void impDisplay() {
     noStroke();
     fill(255, 0, 0);
-    ellipse(myWindow.px(position.x), myWindow.py(position.y), 1.3*diameter*myWindow.x.r, 1.3*diameter*myWindow.y.r);
-    this.display();
+    ellipse(myWindow.px(position.x), myWindow.py(position.y), 0.8*diameter*myWindow.x.r, 0.8*diameter*myWindow.y.r);
   }
   
   // Update the position
@@ -224,57 +223,56 @@ class ControlPoint {
     }
   }
   
-  // Boundary collision detection and resolution
-  void BoundCollision( float e ) {
-    if (position.x < diameter/2) this.ResolveBoundCollision("West", e);
-    if (position.y < diameter/2) this.ResolveBoundCollision("North", e);
-    if (position.x > myWindow.x.inE - diameter/2) this.ResolveBoundCollision("East", e);
-    if (position.y > myWindow.y.inE - diameter/2) this.ResolveBoundCollision("South", e);
-  }
-  void BoundCollision() { this.BoundCollision( 1 ); }
-  
-  // Resolve boundary collisions (update pos + vel)
-  void ResolveBoundCollision(String wall, float e) {
-    if (wall.equals("South") == true) {
-      // handle south
-      float y = myWindow.y.inE - diameter/2;
-      this.UpdatePosition(position.x,y);
-      float vy = -e*velocity.y;
-      this.UpdateVelocity(velocity.x, vy);
-    }
-    if (wall.equals("North") == true) {
-      // handle north
-      float y = diameter/2;
-      this.UpdatePosition(position.x,y);
-      float vy = -e*velocity.y;
-      this.UpdateVelocity(velocity.x, vy);
-    }
-    if (wall.equals("East") == true) {
-      // handle east
-      float x = myWindow.x.inE - diameter/2;
-      this.UpdatePosition(x,position.y);
-      float vx = -e*velocity.x;
-      this.UpdateVelocity(vx, velocity.y);
-    }
-    if (wall.equals("West") == true) {
-      // handle west
-      float x = diameter/2;
-      this.UpdatePosition(x,position.y);
-      float vx = -e*velocity.x;
-      this.UpdateVelocity(vx, velocity.y);
-    }
-  }
-  
+  // Export info on the motion of the control points
   void dampInfo( PrintWriter outFile ) {
     outFile.println(position.x+","+position.y+","+velocity.x+","+velocity.y+","+force.x+","+force.y);
   }
   
+  // Get the distance between control points
+  float distance(ControlPoint other) {
+    float d = this.position.dist(other.position);
+    return d;
+  }
+  
+  // Update the position given a collision time
+  void impUpdate( float dt ) {
+    float x, y;
+    x = positionOld.x + dt*(position.x - positionOld.x);
+    y = positionOld.y + dt*(position.y - positionOld.y);
+    UpdatePosition(x,y);
+  }
   
   
   
   
   
   
+  
+  
+  
+  
+  // Resolve CPoint-CPoint collisions event
+  void ResolveCPointCPoint ( ControlPoint other, float tt ) {
+    float xnewmine, ynewmine, xnewother, ynewother;
+    
+    xnewmine = positionOld.x + tt*(position.x - positionOld.x);
+    ynewmine = positionOld.y + tt*(position.y - positionOld.y);
+    xnewother = other.positionOld.x + tt*(other.position.x - other.positionOld.x);
+    ynewother = other.positionOld.y + tt*(other.position.y - other.positionOld.y);
+    
+    float Vxi = (this.velocity.x*(this.mass-other.mass)/(this.mass+other.mass)) + (2*other.mass/(this.mass+other.mass))*other.velocity.x;
+    float Vyi = (this.velocity.y*(this.mass-other.mass)/(this.mass+other.mass)) + (2*other.mass/(this.mass+other.mass))*other.velocity.y;
+    float Vxj = (other.velocity.x*(other.mass-this.mass)/(this.mass+other.mass)) + (2*other.mass/(this.mass+other.mass))*this.velocity.x;
+    float Vyj = (other.velocity.y*(other.mass-this.mass)/(this.mass+other.mass)) + (2*other.mass/(this.mass+other.mass))*this.velocity.y;
+    //xnewmine = xnewmine + (1-.6*tt)*Vxi;
+    //ynewmine = ynewmine + (1-.6*tt)*Vyi;
+    //xnewother = xnewother + (1-.6*tt)*Vxj;
+    //ynewother = ynewother + (1-.6*tt)*Vyj;
+    this.UpdatePosition( xnewmine, ynewmine );
+    other.UpdatePosition( xnewother, ynewother );
+    this.UpdateVelocity( Vxi, Vyi );
+    other.UpdateVelocity( Vxj, Vyj );
+  }
   
   
   
@@ -293,21 +291,9 @@ class ControlPoint {
   
   
   
-  //// Get the distance between control points
-  //float distance(ControlPoint other) {
-  //  float d = this.position.dist(other.position);
-  //  return d;
-  //}
   
-  //void CPointCPointCollision( ControlPoint other ) {
-  //  float dd = distance( other );
-  //  float clearRad = (this.thick + other.thick)*.25;
-    
-  //  if ( dd <= clearRad ) {
-  //    println("simple cpoint-cpoint collision");
-  //    ResolveCPointCPoint( other, 1 );
-  //  }
-  //}
+  
+  
   //void FastCPointCPointCollision( ControlPoint other ) {
   //  float tol = 1e-6;
   //  float tcol, denom, Rt;
@@ -503,38 +489,6 @@ class ControlPoint {
   //    }
   //  }
   //  return t;
-  //}
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  //void ResolveCPointCPoint ( ControlPoint other, float tt ) {
-  //  float xnewmine, ynewmine, xnewother, ynewother;
-    
-  //  xnewmine = positionOld.x + .5*tt*(position.x - positionOld.x);
-  //  ynewmine = positionOld.y + .5*tt*(position.y - positionOld.y);
-  //  xnewother = other.positionOld.x + .5*tt*(other.position.x - other.positionOld.x);
-  //  ynewother = other.positionOld.y + .5*tt*(other.position.y - other.positionOld.y);
-    
-    
-  //  float Vxi = (this.velocity.x*(this.mass-other.mass)/(this.mass+other.mass)) + (2*other.mass/(this.mass+other.mass))*other.velocity.x;
-  //  float Vyi = (this.velocity.y*(this.mass-other.mass)/(this.mass+other.mass)) + (2*other.mass/(this.mass+other.mass))*other.velocity.y;
-  //  float Vxj = (other.velocity.x*(other.mass-this.mass)/(this.mass+other.mass)) + (2*other.mass/(this.mass+other.mass))*this.velocity.x;
-  //  float Vyj = (other.velocity.y*(other.mass-this.mass)/(this.mass+other.mass)) + (2*other.mass/(this.mass+other.mass))*this.velocity.y;
-  //  //xnewmine = xnewmine + (1-.6*tt)*Vxi;
-  //  //ynewmine = ynewmine + (1-.6*tt)*Vyi;
-  //  //xnewother = xnewother + (1-.6*tt)*Vxj;
-  //  //ynewother = ynewother + (1-.6*tt)*Vyj;
-  //  this.UpdatePosition( xnewmine, ynewmine );
-  //  other.UpdatePosition( xnewother, ynewother );
-  //  this.UpdateVelocity( Vxi, Vyi );
-  //  other.UpdateVelocity( Vxj, Vyj );
   //}
   
   //void ResolveCPointSpring ( Spring spring, float tt ) {
