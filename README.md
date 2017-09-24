@@ -3,5 +3,5 @@ Developing model of solid structures to integrate in [LilyPad](https://github.co
 
 Each element is tested to ensure the best physical behaviour.
 
-Videos of the tests are going to be uploaded on [Youtube](https://www.youtube.com/channel/UChQT9-zSsQyxj1ElbvhkAUg).
+Videos of the tests are going to be uploaded on [Youtube](https://www.youtube.com/playlist?list=PLvd31TJkHlQySfIbLF30tkbuxrs6WBnVS).
  
