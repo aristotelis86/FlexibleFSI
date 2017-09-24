@@ -99,9 +99,8 @@ class CollisionHandler {
             float rewindj = penet/(0.5*cpj.diameter);
             RewTi.append(rewindi);
             RewTj.append(rewindj);
-            // calculate how much penetration we have....
-            // works like that BUT should make a sketch...
-            // does not make sense to fully rewind if dij=clearRad
+            // Must include a detection method for fast moving cpoints
+            // Cheking if their relative velocity is greater than clearRad 
           }
         }
       }

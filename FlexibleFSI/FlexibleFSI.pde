@@ -2,7 +2,7 @@
 
 int nx = 150; // x-dir resolution
 int ny = 150; // y-dir resolution
-int N = 5;
+int N = 15;
 
 float x, y, vx, vy;
 PVector gravity = new PVector(25,25);
