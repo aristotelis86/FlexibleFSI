@@ -27,6 +27,13 @@ class CollisionHandler {
   ArrayList<ControlPoint> FastCPj = new ArrayList<ControlPoint>();
   FloatList FastT = new FloatList();
   
+  ArrayList<ControlPoint> CP = new ArrayList<ControlPoint>();
+  ArrayList<Spring> SP = new ArrayList<Spring>();
+  FloatList RewTcp = new FloatList();
+  FloatList RewTp1 = new FloatList();
+  FloatList RewTp2 = new FloatList();
+  
+  
   //================= Constructor ====================//
   CollisionHandler( ControlPoint [] cpoints ) {
     Ncp = cpoints.length;
@@ -285,7 +292,17 @@ class CollisionHandler {
           continue;
         }
         else {
-          ResolveCPointSpring( sp, tt[j] );
+          PVector cpMove = PVector.sub(cp.position, cp.positionOld);
+          PVector p1Move = PVector.sub(p1.position, p1.positionOld);
+          PVector p2Move = PVector.sub(p2.position, p2.positionOld);
+          CP.add(cp);
+          SP.add(sp);
+          RewTcp.append(cp.diameter/(2*cpMove.mag()));
+          RewTp1.append(p1.diameter/(2*p1Move.mag()));
+          RewTp2.append(p2.diameter/(2*p2Move.mag()));
+          println(cp.diameter/(2*cpMove.mag()));
+          println(p1.diameter/(2*p1Move.mag()));
+          println(p2.diameter/(2*p2Move.mag()));
           break;
         }
       }
@@ -342,11 +359,33 @@ class CollisionHandler {
     return t;
   }
   
-  
-  
-  
-  
-  
+  // Resolve control point-spring collisions
+  // Problem resolving simultaneous collisions must not correct multiple times....
+  // Maybe check for parallel spring...?
+  void ResolveCPSpringCollisions() {
+    int N = CP.size();
+    if (N>0) {
+      for (int i=0; i<N; i++) {
+        ControlPoint cp = CP.get(i);
+        Spring sp = SP.get(i);
+        println("cp before "+cp.position.x+", "+cp.position.y);
+        println("p1 before "+sp.p1.position.x+", "+sp.p1.position.y);
+        println("p2 before "+sp.p2.position.x+", "+sp.p2.position.y);
+        cp.rewindPosition( RewTcp.get(i) );
+        //sp.p1.rewindPosition( RewTp1.get(i) );
+        sp.p2.rewindPosition( RewTp2.get(i) );
+        println("cp after "+cp.position.x+", "+cp.position.y);
+        println("p1 after "+sp.p1.position.x+", "+sp.p1.position.y);
+        println("p2 after "+sp.p2.position.x+", "+sp.p2.position.y);
+        noLoop();
+      }
+      CP = new ArrayList<ControlPoint>();
+      SP = new ArrayList<Spring>();
+      RewTcp = new FloatList();
+      RewTp1 = new FloatList();
+      RewTp2 = new FloatList();
+    }
+  }
   
  
  // Main Handling method
@@ -354,10 +393,12 @@ class CollisionHandler {
    this.DetectBoundCollision();
    //this.DetectFastCPCPCollision();
    this.DetectCPointCPointCollision();
+   this.DetectCPointSpringCollision();
    
    this.ResolveNSCollisions();
    //this.ResolveFastCPCPCollisions();
    this.ResolveCPCPCollisions();
+   this.ResolveCPSpringCollisions();
  }
   
   
