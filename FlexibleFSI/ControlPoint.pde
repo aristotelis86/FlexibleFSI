@@ -234,14 +234,13 @@ class ControlPoint {
     return d;
   }
   
-  // Update the position given a collision time
-  void impUpdate( float dt ) {
+  // Rewind the update
+  void rewindPosition( float dt ) {
     float x, y;
-    x = positionOld.x + dt*(position.x - positionOld.x);
-    y = positionOld.y + dt*(position.y - positionOld.y);
+    x = position.x - dt*(position.x - positionOld.x);
+    y = position.y - dt*(position.y - positionOld.y);
     UpdatePosition(x,y);
   }
-  
   
   
   

@@ -2,10 +2,14 @@ class CollisionHandler {
   //================= Attributes ====================//
   int Ncp; // number of control points to consider
   ArrayList<ControlPoint> LocalCPoints = new ArrayList<ControlPoint>();
+  
   ArrayList<String> BoundCollisionInfo = new ArrayList<String>();
   ArrayList<ControlPoint> BoundCollision = new ArrayList<ControlPoint>();
+  
   ArrayList<ControlPoint> CPi = new ArrayList<ControlPoint>();
   ArrayList<ControlPoint> CPj = new ArrayList<ControlPoint>();
+  FloatList RewT = new FloatList();
+  
   ArrayList<ControlPoint> FastCPi = new ArrayList<ControlPoint>();
   ArrayList<ControlPoint> FastCPj = new ArrayList<ControlPoint>();
   FloatList FastT = new FloatList();
@@ -89,6 +93,12 @@ class CollisionHandler {
           if (dij<=clearRad) {
             CPi.add(cpi);
             CPj.add(cpj);
+            float radRatio = cpi.diameter/cpj.diameter;
+            float distRatio = dij/clearRad;
+            RewT.append(distRatio);
+            // calculate how much penetration we have....
+            // works like that BUT should make a sketch...
+            // does not make sense to fully rewind if dij=clearRad
           }
         }
       }
@@ -141,6 +151,9 @@ class CollisionHandler {
     for (int ij=0; ij<N; ij++) {
       ControlPoint cpi = CPi.get(ij);
       ControlPoint cpj = CPj.get(ij);
+      float rewT = RewT.get(ij);
+      cpi.rewindPosition(rewT);
+      cpj.rewindPosition(rewT);
       float Vxi = (cpi.velocity.x*(cpi.mass-cpj.mass)/(cpi.mass+cpj.mass)) + (2*cpj.mass/(cpi.mass+cpj.mass))*cpj.velocity.x;
       float Vyi = (cpi.velocity.y*(cpi.mass-cpj.mass)/(cpi.mass+cpj.mass)) + (2*cpj.mass/(cpi.mass+cpj.mass))*cpj.velocity.y;
       float Vxj = (cpj.velocity.x*(cpj.mass-cpi.mass)/(cpi.mass+cpj.mass)) + (2*cpj.mass/(cpi.mass+cpj.mass))*cpi.velocity.x;

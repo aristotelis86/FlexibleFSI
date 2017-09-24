@@ -5,7 +5,7 @@ int ny = 150; // y-dir resolution
 int N = 2;
 
 float x, y, vx, vy;
-PVector gravity = new PVector(5,5);
+PVector gravity = new PVector(25,25);
 
 /************************ Setup Section ************************/
 Window view; // convert pixels to non-dim frame
