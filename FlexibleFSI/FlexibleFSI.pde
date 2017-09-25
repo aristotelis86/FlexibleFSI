@@ -2,7 +2,7 @@
 
 int nx = 150; // x-dir resolution
 int ny = 150; // y-dir resolution
-int N = 6;
+int N = 2;
 PVector gravity = new PVector(0,3);
 
 /************************ Setup Section ************************/
@@ -16,7 +16,7 @@ void settings(){
 void setup() {
   
   Window view = new Window(1, 1, nx, ny, 0, 0, width, height);
-  demo = new FreeFallSprings( 6, gravity, view );
+  demo = new FreeFallSprings( 2, gravity, view );
   
 } // end of setup
 

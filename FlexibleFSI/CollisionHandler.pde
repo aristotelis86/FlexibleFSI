@@ -15,14 +15,6 @@ class CollisionHandler {
   ArrayList<ControlPoint> LocalCPoints = new ArrayList<ControlPoint>();
   ArrayList<Spring> LocalSprings = new ArrayList<Spring>();
   
-  ArrayList<String> BoundCollisionInfo = new ArrayList<String>();
-  ArrayList<ControlPoint> BoundCollision = new ArrayList<ControlPoint>();
-  
-  ArrayList<ControlPoint> CPi = new ArrayList<ControlPoint>();
-  ArrayList<ControlPoint> CPj = new ArrayList<ControlPoint>();
-  FloatList RewTi = new FloatList();
-  FloatList RewTj = new FloatList();
-  
   ArrayList<ControlPoint> FastCPi = new ArrayList<ControlPoint>();
   ArrayList<ControlPoint> FastCPj = new ArrayList<ControlPoint>();
   FloatList FastT = new FloatList();
@@ -35,6 +27,11 @@ class CollisionHandler {
   
   
   //================= Constructor ====================//
+  CollisionHandler() {
+    Ncp = 0;
+    Nsp = 0;
+    // Just exploit the class for its methods
+  }
   CollisionHandler( ControlPoint [] cpoints ) {
     Ncp = cpoints.length;
     Nsp = 0;
@@ -65,53 +62,54 @@ class CollisionHandler {
     for (int i=0; i<Ncp; i++) {
       ControlPoint cp = LocalCPoints.get(i);
       if (cp.position.x < cp.diameter/2) {
-        BoundCollision.add(cp);
-        BoundCollisionInfo.add("West");
+        this.ResolveBoundCollisions( "West", cp );
       }
       else if (cp.position.x > cp.myWindow.x.inE - cp.diameter/2) {
-        BoundCollision.add(cp);
-        BoundCollisionInfo.add("East");
+        this.ResolveBoundCollisions( "East", cp );
       }
       if (cp.position.y < cp.diameter/2) {
-        BoundCollision.add(cp);
-        BoundCollisionInfo.add("North");
+        this.ResolveBoundCollisions( "North", cp );
       }
       else if (cp.position.y > cp.myWindow.y.inE - cp.diameter/2) {
-        BoundCollision.add(cp);
-        BoundCollisionInfo.add("South");
+        this.ResolveBoundCollisions( "South", cp );
       }
     }
   }
-  
-  //Resolve North-South Boundary Collisions
-  void ResolveNSCollisions() {
-    int N = BoundCollision.size();
-    if (N>0) {
-      for (int i=0; i<N; i++) {
-        String str = BoundCollisionInfo.get(i);
-        ControlPoint cp = BoundCollision.get(i);
-        if ((str.equals("North")==true) || (str.equals("South")==true)) {
-          float vx = cp.velocity.x;
-          float vy = -cp.velocity.y;
-          float x = cp.position.x;
-          float y = cp.position.y;
-          if (str.equals("North")==true) y = cp.diameter/2;
-          else if (str.equals("South")==true) y = cp.myWindow.y.inE-cp.diameter/2;
-          cp.UpdatePosition(x,y); cp.UpdateVelocity(vx,vy);
-        }
-        if ((str.equals("West")==true) || (str.equals("East")==true)) {
-          float vx = -cp.velocity.x;
-          float vy = cp.velocity.y;
-          float x = cp.position.x;
-          float y = cp.position.y;
-          if (str.equals("West")==true) x = cp.diameter/2;
-          else if (str.equals("East")==true) x = cp.myWindow.x.inE-cp.diameter/2;
-          cp.UpdatePosition(x,y); cp.UpdateVelocity(vx,vy);
-        }
-      }
+  // Detect Boundary Collisions
+  void DetectBoundCollision( ControlPoint cp ) {
+    if (cp.position.x < cp.diameter/2) {
+      this.ResolveBoundCollisions( "West", cp );
     }
-    BoundCollision = new ArrayList<ControlPoint>();
-    BoundCollisionInfo = new ArrayList<String>();
+    else if (cp.position.x > cp.myWindow.x.inE - cp.diameter/2) {
+      this.ResolveBoundCollisions( "East", cp );
+    }
+    if (cp.position.y < cp.diameter/2) {
+      this.ResolveBoundCollisions( "North", cp );
+    }
+    else if (cp.position.y > cp.myWindow.y.inE - cp.diameter/2) {
+      this.ResolveBoundCollisions( "South", cp );
+    }
+  }
+  // Resolve boundary collisions
+  void ResolveBoundCollisions( String bound, ControlPoint cp ){
+    if ((bound.equals("North")==true) || (bound.equals("South")==true)) {
+      float vx = cp.velocity.x;
+      float vy = -cp.velocity.y;
+      float x = cp.position.x;
+      float y = cp.position.y;
+      if (bound.equals("North")==true) y = cp.diameter/2;
+      else if (bound.equals("South")==true) y = cp.myWindow.y.inE-cp.diameter/2;
+      cp.UpdatePosition(x,y); cp.UpdateVelocity(vx,vy);
+    }
+    if ((bound.equals("West")==true) || (bound.equals("East")==true)) {
+      float vx = -cp.velocity.x;
+      float vy = cp.velocity.y;
+      float x = cp.position.x;
+      float y = cp.position.y;
+      if (bound.equals("West")==true) x = cp.diameter/2;
+      else if (bound.equals("East")==true) x = cp.myWindow.x.inE-cp.diameter/2;
+      cp.UpdatePosition(x,y); cp.UpdateVelocity(vx,vy);
+    }
   }
   
   // Detect CPoint-CPoint collisions
@@ -125,19 +123,40 @@ class CollisionHandler {
           float dij = cpi.distance(cpj);
           float clearRad = (cpi.diameter + cpj.diameter)/2.;
           if (dij<=clearRad) {
-            CPi.add(cpi);
-            CPj.add(cpj);
             float penet = 0.5*(cpi.diameter + cpj.diameter) - dij;
             float rewindi = penet/(0.5*cpi.diameter);
             float rewindj = penet/(0.5*cpj.diameter);
-            RewTi.append(rewindi);
-            RewTj.append(rewindj);
+            this.ResolveCPCPCollisions( cpi, rewindi, cpj, rewindj );
             // Must include a detection method for fast moving cpoints
             // Cheking if their relative velocity is greater than clearRad 
           }
         }
       }
     }
+  }
+  // Detect CPoint-CPoint collisions
+  void DetectCPointCPointCollision( ControlPoint cpi, ControlPoint cpj ) {
+    float dij = cpi.distance(cpj);
+    float clearRad = (cpi.diameter + cpj.diameter)/2.;
+    if (dij<=clearRad) {
+      float penet = 0.5*(cpi.diameter + cpj.diameter) - dij;
+      float rewindi = penet/(0.5*cpi.diameter);
+      float rewindj = penet/(0.5*cpj.diameter);
+      this.ResolveCPCPCollisions( cpi, rewindi, cpj, rewindj );
+      // Must include a detection method for fast moving cpoints
+     // Cheking if their relative velocity is greater than clearRad 
+    }
+  }
+  // Resolve CPoint-CPoint collisions
+  void ResolveCPCPCollisions( ControlPoint cpi,  float rewti, ControlPoint cpj, float rewtj ) {
+    cpi.rewindPosition(rewti);
+    cpj.rewindPosition(rewtj);
+    float Vxi = (cpi.velocity.x*(cpi.mass-cpj.mass)/(cpi.mass+cpj.mass)) + (2*cpj.mass/(cpi.mass+cpj.mass))*cpj.velocity.x;
+    float Vyi = (cpi.velocity.y*(cpi.mass-cpj.mass)/(cpi.mass+cpj.mass)) + (2*cpj.mass/(cpi.mass+cpj.mass))*cpj.velocity.y;
+    float Vxj = (cpj.velocity.x*(cpj.mass-cpi.mass)/(cpi.mass+cpj.mass)) + (2*cpj.mass/(cpi.mass+cpj.mass))*cpi.velocity.x;
+    float Vyj = (cpj.velocity.y*(cpj.mass-cpi.mass)/(cpi.mass+cpj.mass)) + (2*cpj.mass/(cpi.mass+cpj.mass))*cpi.velocity.y;
+    cpi.UpdateVelocity( Vxi, Vyi );
+    cpj.UpdateVelocity( Vxj, Vyj );
   }
   
   // Detect Fast moving CPoint-CPoint collisions
@@ -180,29 +199,6 @@ class CollisionHandler {
     }
   }
   
-  // Resolve CPoint-CPoint collisions
-  void ResolveCPCPCollisions() {
-    int N = CPi.size();
-    for (int ij=0; ij<N; ij++) {
-      ControlPoint cpi = CPi.get(ij);
-      ControlPoint cpj = CPj.get(ij);
-      float rewTi = RewTi.get(ij);
-      float rewTj = RewTj.get(ij);
-      cpi.rewindPosition(rewTi);
-      cpj.rewindPosition(rewTj);
-      float Vxi = (cpi.velocity.x*(cpi.mass-cpj.mass)/(cpi.mass+cpj.mass)) + (2*cpj.mass/(cpi.mass+cpj.mass))*cpj.velocity.x;
-      float Vyi = (cpi.velocity.y*(cpi.mass-cpj.mass)/(cpi.mass+cpj.mass)) + (2*cpj.mass/(cpi.mass+cpj.mass))*cpj.velocity.y;
-      float Vxj = (cpj.velocity.x*(cpj.mass-cpi.mass)/(cpi.mass+cpj.mass)) + (2*cpj.mass/(cpi.mass+cpj.mass))*cpi.velocity.x;
-      float Vyj = (cpj.velocity.y*(cpj.mass-cpi.mass)/(cpi.mass+cpj.mass)) + (2*cpj.mass/(cpi.mass+cpj.mass))*cpi.velocity.y;
-      cpi.UpdateVelocity( Vxi, Vyi );
-      cpj.UpdateVelocity( Vxj, Vyj );
-    }
-    CPi = new ArrayList<ControlPoint>();
-    CPj = new ArrayList<ControlPoint>();
-    RewTi = new FloatList();
-    RewTj = new FloatList();
-  }
-  
   // Resolve Fast moving CPoint-CPoint collisions
   void ResolveFastCPCPCollisions() {
     int N = FastCPi.size();
@@ -226,6 +222,8 @@ class CollisionHandler {
     FastT = new FloatList();
   }
   
+  // Maybe check for parallel spring...?
+  // Still some false-positive checks occuring
   // Detect point-spring collisions
   void  DetectCPointSpringCollision() {
     if ((Nsp>0) && (Ncp>2)) {
@@ -243,7 +241,16 @@ class CollisionHandler {
       }
     }
   }
-  
+  // Detect point-spring collisions
+  void  DetectCPointSpringCollision( Spring sp, ControlPoint cp ) {
+    ControlPoint p1, p2;
+    p1 = sp.p1;
+    p2 = sp.p2;
+    if ((cp!=p1) && (cp!=p2)) {
+      LineSweepsPoint( sp, cp );
+    }
+  }
+  // Check if a line sweeps a point
   void LineSweepsPoint( Spring sp, ControlPoint cp ) {
     ControlPoint p1, p2;
     p1 = sp.p1;
@@ -295,18 +302,32 @@ class CollisionHandler {
           PVector cpMove = PVector.sub(cp.position, cp.positionOld);
           PVector p1Move = PVector.sub(p1.position, p1.positionOld);
           PVector p2Move = PVector.sub(p2.position, p2.positionOld);
-          CP.add(cp);
-          SP.add(sp);
-          RewTcp.append(cp.diameter/(2*cpMove.mag()));
-          RewTp1.append(p1.diameter/(2*p1Move.mag()));
-          RewTp2.append(p2.diameter/(2*p2Move.mag()));
-          println(cp.diameter/(2*cpMove.mag()));
-          println(p1.diameter/(2*p1Move.mag()));
-          println(p2.diameter/(2*p2Move.mag()));
+          float [] tsp = {p1.diameter/(2*p1Move.mag()), p2.diameter/(2*p2Move.mag())};
+          this.ResolveCPSpringCollisions( sp, tsp, cp, cp.diameter/(2*cpMove.mag()) );
+          println("Collision detected");
+          println( d );
+          delay(2000);
           break;
         }
       }
     }
+  }
+  // Resolve control point-spring collisions
+  void ResolveCPSpringCollisions( Spring sp, float [] tsp, ControlPoint cp, float tcp ) {
+    cp.rewindPosition( tcp );
+    sp.p1.rewindPosition( tsp[0] );
+    sp.p2.rewindPosition( tsp[1] );
+    float otherVelx = 0.5*(sp.p1.velocity.x + sp.p2.velocity.x);
+    float otherVely = 0.5*(sp.p1.velocity.y + sp.p2.velocity.y);
+    float otherMass = sp.p1.mass + sp.p2.mass;
+    
+    float Vxi = (cp.velocity.x*(cp.mass-otherMass)/(cp.mass+otherMass)) + (2*otherMass/(cp.mass+otherMass))*otherVelx;
+    float Vyi = (cp.velocity.y*(cp.mass-otherMass)/(cp.mass+otherMass)) + (2*otherMass/(cp.mass+otherMass))*otherVely;
+    float Vxj = (otherVelx*(otherMass-cp.mass)/(cp.mass+otherMass)) + (2*otherMass/(cp.mass+otherMass))*cp.velocity.x;
+    float Vyj = (otherVely*(otherMass-cp.mass)/(cp.mass+otherMass)) + (2*otherMass/(cp.mass+otherMass))*cp.velocity.y;
+    cp.UpdateVelocity( Vxi, Vyi );
+    sp.p1.UpdateVelocity( Vxj, Vyj );
+    sp.p2.UpdateVelocity( Vxj, Vyj );
   }
   
   // Linear interpolation between two points
@@ -358,48 +379,18 @@ class CollisionHandler {
     }
     return t;
   }
+ 
   
-  // Resolve control point-spring collisions
-  // Problem resolving simultaneous collisions must not correct multiple times....
-  // Maybe check for parallel spring...?
-  void ResolveCPSpringCollisions() {
-    int N = CP.size();
-    if (N>0) {
-      for (int i=0; i<N; i++) {
-        ControlPoint cp = CP.get(i);
-        Spring sp = SP.get(i);
-        println("cp before "+cp.position.x+", "+cp.position.y);
-        println("p1 before "+sp.p1.position.x+", "+sp.p1.position.y);
-        println("p2 before "+sp.p2.position.x+", "+sp.p2.position.y);
-        cp.rewindPosition( RewTcp.get(i) );
-        //sp.p1.rewindPosition( RewTp1.get(i) );
-        sp.p2.rewindPosition( RewTp2.get(i) );
-        println("cp after "+cp.position.x+", "+cp.position.y);
-        println("p1 after "+sp.p1.position.x+", "+sp.p1.position.y);
-        println("p2 after "+sp.p2.position.x+", "+sp.p2.position.y);
-        noLoop();
-      }
-      CP = new ArrayList<ControlPoint>();
-      SP = new ArrayList<Spring>();
-      RewTcp = new FloatList();
-      RewTp1 = new FloatList();
-      RewTp2 = new FloatList();
-    }
+  
+ // Main Handling method
+  void HandleCollisions() {
+    // There should be a loop that restarts everytime a collision happened.
+    // In this way a collision-free state is ensured by the end of this seemingly 
+    // endless loop....
+    this.DetectBoundCollision();
+    this.DetectCPointCPointCollision();
+    this.DetectCPointSpringCollision();
+   //this.DetectFastCPCPCollision();
   }
   
- 
- // Main Handling method
- void HandleCollisions() {
-   this.DetectBoundCollision();
-   //this.DetectFastCPCPCollision();
-   this.DetectCPointCPointCollision();
-   this.DetectCPointSpringCollision();
-   
-   this.ResolveNSCollisions();
-   //this.ResolveFastCPCPCollisions();
-   this.ResolveCPCPCollisions();
-   this.ResolveCPSpringCollisions();
- }
-  
-  
-}
+} // end of class
