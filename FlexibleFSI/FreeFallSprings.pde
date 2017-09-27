@@ -63,7 +63,7 @@ class FreeFallSprings {
       cp.updateAlt( 0.1 );
       cp.updateAlt2( 0.1 );
     }
-    collider.HandleCollisions();
+    collider.HandleCollisionsSeq();
     for (ControlPoint cp : cpoints) cp.display();
     for (Spring sp: springs) sp.display();
   }

@@ -16,7 +16,7 @@ void settings(){
 void setup() {
   
   Window view = new Window(1, 1, nx, ny, 0, 0, width, height);
-  demo = new FreeFallSprings( 2, gravity, view );
+  demo = new FreeFallSprings( 10, gravity, view );
   
 } // end of setup
 
@@ -26,7 +26,8 @@ void draw() {
   background(185);
   
   demo.RunDemo();
-  saveFrame("./movie/frame_######.png");
+  //saveFrame("./movie/frame_######.png");
+  
 }
 
 

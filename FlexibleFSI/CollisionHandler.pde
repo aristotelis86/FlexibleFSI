@@ -76,19 +76,25 @@ class CollisionHandler {
     }
   }
   // Detect Boundary Collisions
-  void DetectBoundCollision( ControlPoint cp ) {
+  boolean DetectBoundCollision( ControlPoint cp ) {
+    boolean Flag = false;
     if (cp.position.x < cp.diameter/2) {
       this.ResolveBoundCollisions( "West", cp );
+      Flag = true;
     }
     else if (cp.position.x > cp.myWindow.x.inE - cp.diameter/2) {
       this.ResolveBoundCollisions( "East", cp );
+      Flag = true;
     }
     if (cp.position.y < cp.diameter/2) {
       this.ResolveBoundCollisions( "North", cp );
+      Flag = true;
     }
     else if (cp.position.y > cp.myWindow.y.inE - cp.diameter/2) {
       this.ResolveBoundCollisions( "South", cp );
+      Flag = true;
     }
+    return Flag;
   }
   // Resolve boundary collisions
   void ResolveBoundCollisions( String bound, ControlPoint cp ){
@@ -135,7 +141,8 @@ class CollisionHandler {
     }
   }
   // Detect CPoint-CPoint collisions
-  void DetectCPointCPointCollision( ControlPoint cpi, ControlPoint cpj ) {
+  boolean DetectCPointCPointCollision( ControlPoint cpi, ControlPoint cpj ) {
+    boolean Flag = false;
     float dij = cpi.distance(cpj);
     float clearRad = (cpi.diameter + cpj.diameter)/2.;
     if (dij<=clearRad) {
@@ -143,9 +150,11 @@ class CollisionHandler {
       float rewindi = penet/(0.5*cpi.diameter);
       float rewindj = penet/(0.5*cpj.diameter);
       this.ResolveCPCPCollisions( cpi, rewindi, cpj, rewindj );
+      Flag = true;
       // Must include a detection method for fast moving cpoints
      // Cheking if their relative velocity is greater than clearRad 
     }
+    return Flag;
   }
   // Resolve CPoint-CPoint collisions
   void ResolveCPCPCollisions( ControlPoint cpi,  float rewti, ControlPoint cpj, float rewtj ) {
@@ -242,16 +251,19 @@ class CollisionHandler {
     }
   }
   // Detect point-spring collisions
-  void  DetectCPointSpringCollision( Spring sp, ControlPoint cp ) {
+  boolean  DetectCPointSpringCollision( Spring sp, ControlPoint cp ) {
+    boolean Flag = false;
     ControlPoint p1, p2;
     p1 = sp.p1;
     p2 = sp.p2;
     if ((cp!=p1) && (cp!=p2)) {
-      LineSweepsPoint( sp, cp );
+      Flag = LineSweepsPoint( sp, cp );
     }
+    return Flag;
   }
   // Check if a line sweeps a point
-  void LineSweepsPoint( Spring sp, ControlPoint cp ) {
+  boolean LineSweepsPoint( Spring sp, ControlPoint cp ) {
+    boolean Flag = false;
     ControlPoint p1, p2;
     p1 = sp.p1;
     p2 = sp.p2;
@@ -304,6 +316,7 @@ class CollisionHandler {
           PVector p2Move = PVector.sub(p2.position, p2.positionOld);
           float [] tsp = {p1.diameter/(2*p1Move.mag()), p2.diameter/(2*p2Move.mag())};
           this.ResolveCPSpringCollisions( sp, tsp, cp, cp.diameter/(2*cpMove.mag()) );
+          Flag = true;
           println("Collision detected");
           println( d );
           delay(2000);
@@ -311,6 +324,7 @@ class CollisionHandler {
         }
       }
     }
+    return Flag;
   }
   // Resolve control point-spring collisions
   void ResolveCPSpringCollisions( Spring sp, float [] tsp, ControlPoint cp, float tcp ) {
@@ -382,7 +396,7 @@ class CollisionHandler {
  
   
   
- // Main Handling method
+  // Main Handling method
   void HandleCollisions() {
     // There should be a loop that restarts everytime a collision happened.
     // In this way a collision-free state is ensured by the end of this seemingly 
@@ -391,6 +405,31 @@ class CollisionHandler {
     this.DetectCPointCPointCollision();
     this.DetectCPointSpringCollision();
    //this.DetectFastCPCPCollision();
+  }
+  // Sequential handling of collisions
+  void HandleCollisionsSeq() {
+    boolean colFlag = true;
+    boolean boundFlag = false;
+    boolean cpcpFlag = false;
+    int iter = 0;
+    
+    while ((colFlag) || (iter<1000)) {
+      iter++;
+      for (int i=0; i<Ncp; i++) {
+        ControlPoint cp = LocalCPoints.get(i);
+        boundFlag = this.DetectBoundCollision( cp );
+        if (boundFlag) break;
+      }
+      for (int i=0; i<Ncp-1; i++) {
+        for (int j=i+1; i<Ncp; i++) {
+          ControlPoint cpi = LocalCPoints.get(i);
+          ControlPoint cpj = LocalCPoints.get(j);
+          cpcpFlag = this.DetectCPointCPointCollision( cpi, cpj );
+          if (cpcpFlag) break;
+        }
+      }
+      if ((cpcpFlag) || (boundFlag)) colFlag = true; 
+    }
   }
   
 } // end of class
