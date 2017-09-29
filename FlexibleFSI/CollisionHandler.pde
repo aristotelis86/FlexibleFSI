@@ -244,26 +244,25 @@ class CollisionHandler {
           p1 = sp.p1;
           p2 = sp.p2;
           if ((cp!=p1) && (cp!=p2)) {
-            LineSweepsPoint( sp, cp );
+            this.LineSweepsPoint( sp, cp );
           }
         }
       }
     }
   }
   // Detect point-spring collisions
-  boolean  DetectCPointSpringCollision( Spring sp, ControlPoint cp ) {
-    boolean Flag = false;
-    ControlPoint p1, p2;
-    p1 = sp.p1;
-    p2 = sp.p2;
-    if ((cp!=p1) && (cp!=p2)) {
-      Flag = LineSweepsPoint( sp, cp );
-    }
-    return Flag;
-  }
+  //boolean  DetectCPointSpringCollision( Spring sp, ControlPoint cp ) {
+  //  boolean Flag = false;
+  //  ControlPoint p1, p2;
+  //  p1 = sp.p1;
+  //  p2 = sp.p2;
+  //  if ((cp!=p1) && (cp!=p2)) {
+  //    Flag = LineSweepsPoint( sp, cp );
+  //  }
+  //  return Flag;
+  //}
   // Check if a line sweeps a point
-  boolean LineSweepsPoint( Spring sp, ControlPoint cp ) {
-    boolean Flag = false;
+  void LineSweepsPoint( Spring sp, ControlPoint cp ) {
     ControlPoint p1, p2;
     p1 = sp.p1;
     p2 = sp.p2;
@@ -315,16 +314,16 @@ class CollisionHandler {
           PVector p1Move = PVector.sub(p1.position, p1.positionOld);
           PVector p2Move = PVector.sub(p2.position, p2.positionOld);
           float [] tsp = {p1.diameter/(2*p1Move.mag()), p2.diameter/(2*p2Move.mag())};
+          //float [] tsp = {tt[j], tt[j]};
           this.ResolveCPSpringCollisions( sp, tsp, cp, cp.diameter/(2*cpMove.mag()) );
-          Flag = true;
+          //this.ResolveCPSpringCollisions( sp, tsp, cp, tt[j] );
           println("Collision detected");
           println( d );
-          delay(2000);
+          //noLoop();
           break;
         }
       }
     }
-    return Flag;
   }
   // Resolve control point-spring collisions
   void ResolveCPSpringCollisions( Spring sp, float [] tsp, ControlPoint cp, float tcp ) {
@@ -413,22 +412,16 @@ class CollisionHandler {
     boolean cpcpFlag = false;
     int iter = 0;
     
-    while ((colFlag) || (iter<1000)) {
-      iter++;
-      for (int i=0; i<Ncp; i++) {
-        ControlPoint cp = LocalCPoints.get(i);
-        boundFlag = this.DetectBoundCollision( cp );
-        if (boundFlag) break;
+    for (int i=0; i<Ncp; i++) {
+      ControlPoint cp = LocalCPoints.get(i);
+      boundFlag = this.DetectBoundCollision( cp );
+    }
+    for (int i=0; i<Ncp-1; i++) {
+      for (int j=i+1; i<Ncp; i++) {
+        ControlPoint cpi = LocalCPoints.get(i);
+        ControlPoint cpj = LocalCPoints.get(j);
+        cpcpFlag = this.DetectCPointCPointCollision( cpi, cpj );
       }
-      for (int i=0; i<Ncp-1; i++) {
-        for (int j=i+1; i<Ncp; i++) {
-          ControlPoint cpi = LocalCPoints.get(i);
-          ControlPoint cpj = LocalCPoints.get(j);
-          cpcpFlag = this.DetectCPointCPointCollision( cpi, cpj );
-          if (cpcpFlag) break;
-        }
-      }
-      if ((cpcpFlag) || (boundFlag)) colFlag = true; 
     }
   }
   
