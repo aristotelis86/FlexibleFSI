@@ -1,7 +1,7 @@
 int nx = 150; // x-dir resolution
 int ny = 150; // y-dir resolution
 int N = 2;
-PVector gravity = new PVector(0,.3);
+PVector gravity = new PVector(0,3);
 Window view; // convert pixels to non-dim frame
 CollisionHandler collider;
 ControlPoint [] cpoints;
@@ -24,7 +24,6 @@ void setup() {
   cpoints[3] = new ControlPoint( new PVector(2*nx/3., 8*ny/10.), 5,  10, view );
   springs[1] = new Spring(cpoints[2], cpoints[3], 50, 5, 0.5, 1, view );
   
-  
   collider = new CollisionHandler( cpoints, springs );
 } // end of setup
 
@@ -40,5 +39,6 @@ void draw() {
   collider.HandleCollisions();
   for (ControlPoint cp : cpoints) cp.display();
   for (Spring sp: springs) sp.display();
+  
   //saveFrame("./movie/frame_######.png");
 }

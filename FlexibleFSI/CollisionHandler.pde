@@ -175,30 +175,16 @@ class CollisionHandler {
           ControlPoint cpi2 = spi.p2;
           ControlPoint cpj2 = spj.p2;
           if ((((cpi1!=cpj1) && (cpi1!=cpj2))) &&  (((cpi2!=cpj1) && (cpi2!=cpj2)))) {
-            boolean ColFlag = doLinesIntersect( spi, spj );
-            if (ColFlag) {
-              this.ResolveSpringSpringCollisions( spi, spj );
-            }
+            BoundBox Boxi, Boxj;
+            Boxi = new BoundBox( spi );
+            Boxj = new BoundBox( spj );
+            Boxi.display();
+            Boxj.display();
+            this.doBoundBoxesOverlap( Boxi, Boxj );
           }
         }
       }
     }
-  }
-  void DetectSpringSpringCollision( Spring sp1, Spring sp2 ) {
-    ControlPoint cp11 = sp1.p1;
-    ControlPoint cp21 = sp2.p1;
-    ControlPoint cp12 = sp1.p2;
-    ControlPoint cp22 = sp2.p2;
-    
-    if ((((cp11!=cp21) && (cp11!=cp22))) &&  (((cp12!=cp21) && (cp12!=cp22)))) {
-      
-    }
-  }
-  boolean doBoundingBoxesIntersect( BoundBox a, BoundBox b ) {
-    return a.A[0].y <= b.A[1].y 
-          && a.A[1].y >= b.A[0].y 
-          && a.A[1].x >= b.A[0].x 
-          && a.A[0].x <= b.A[1].x;
   }
   void ResolveSpringSpringCollisions( Spring sp1, Spring sp2 ) {
     
@@ -219,38 +205,75 @@ class CollisionHandler {
       sp2.p1.UpdateVelocity( Vx2, Vy2 );
       sp2.p2.UpdateVelocity( Vx2, Vy2 );
   }
-  boolean isPointOnLine( LineSegment a, PVector b ) {
-    float tol = 1e-7;
-    LineSegment aTmp = new LineSegment(new PVector(0, 0), new PVector(
-            a.End.x - a.Start.x, a.End.y - a.Start.y));
-    PVector bTmp = new PVector(b.x - a.Start.x, b.y - a.Start.y);
-    PVector r = aTmp.End.cross( bTmp );
-    return abs(r.z) < tol;
-  }
-  boolean isPointRightOfLine( LineSegment a, PVector b ) {
-    LineSegment aTmp = new LineSegment(new PVector(0, 0), new PVector(
-            a.End.x - a.Start.x, a.End.y - a.Start.y));
-    PVector bTmp = new PVector(b.x - a.Start.x, b.y - a.Start.y);
-    PVector r = aTmp.End.cross( bTmp ); 
-    return r.z < 0;
-  }
-  boolean lineSegmentTouchesOrCrossesLine( LineSegment a, LineSegment b ) {
-    return isPointOnLine(a, b.Start)
-            || isPointOnLine(a, b.End)
-            || (isPointRightOfLine(a, b.Start) ^ isPointRightOfLine(a, b.End));
-  }
-  boolean doLinesIntersect( Spring sp1, Spring sp2 ) {
-    BoundBox box1 = new BoundBox( sp1 );
-    BoundBox box2 = new BoundBox( sp2 );
-    box1.display();
-    box2.display();
-    LineSegment s1 = new LineSegment( sp1.p1.position, sp1.p2.position );
-    LineSegment s2 = new LineSegment( sp2.p1.position, sp2.p2.position );
+  
+  void doBoundBoxesOverlap( BoundBox b1, BoundBox b2 ) {
+    PVector [] CheckAxes = new PVector[4];
+    CheckAxes[0] = new PVector(b1.lines[0].orth.nx, b1.lines[0].orth.ny);
+    CheckAxes[1] = new PVector(b1.lines[1].orth.nx, b1.lines[1].orth.ny);
+    CheckAxes[2] = new PVector(b2.lines[0].orth.nx, b2.lines[0].orth.ny);
+    CheckAxes[3] = new PVector(b2.lines[1].orth.nx, b2.lines[1].orth.ny);
     
-    return doBoundingBoxesIntersect(box1, box2);
-            //&& lineSegmentTouchesOrCrossesLine(s1, s2)
-            //&& lineSegmentTouchesOrCrossesLine(s2, s1);
+    for (int i=0; i<4; i++) {
+      float minProjB1 = PVector.dot(CheckAxes[i],b1.vertices[1]);
+      float maxProjB1 = PVector.dot(CheckAxes[i],b1.vertices[1]);
+      float minProjB2 = PVector.dot(CheckAxes[i],b2.vertices[1]);
+      float maxProjB2 = PVector.dot(CheckAxes[i],b2.vertices[1]);
+      
+      for (int j=2; j<5; j++) {
+        float ProjB1 = PVector.dot(CheckAxes[i],b1.vertices[j]);
+        float ProjB2 = PVector.dot(CheckAxes[i],b2.vertices[j]);
+        
+        if (ProjB1<minProjB1) minProjB1 = ProjB1;
+        if (ProjB1>maxProjB1) maxProjB1 = ProjB1;
+        if (ProjB2<minProjB2) minProjB2 = ProjB2;
+        if (ProjB2>maxProjB2) maxProjB2 = ProjB2;
+      }
+      
+    }
   }
+  
+  
+  
+  //boolean doBoundingBoxesIntersect( BoundBox a, BoundBox b ) {
+  //  return a.A[0].y <= b.A[1].y 
+  //        && a.A[1].y >= b.A[0].y 
+  //        && a.A[1].x >= b.A[0].x 
+  //        && a.A[0].x <= b.A[1].x;
+  //}
+  //boolean isPointOnLine( LineSegment a, PVector b ) {
+  //  float tol = 1e-7;
+  //  LineSegment aTmp = new LineSegment(new PVector(0, 0), new PVector(
+  //          a.End.x - a.Start.x, a.End.y - a.Start.y));
+  //  PVector bTmp = new PVector(b.x - a.Start.x, b.y - a.Start.y);
+  //  PVector r = aTmp.End.cross( bTmp );
+  //  return abs(r.z) < tol;
+  //}
+  //boolean isPointRightOfLine( LineSegment a, PVector b ) {
+  //  LineSegment aTmp = new LineSegment(new PVector(0, 0), new PVector(
+  //          a.End.x - a.Start.x, a.End.y - a.Start.y));
+  //  PVector bTmp = new PVector(b.x - a.Start.x, b.y - a.Start.y);
+  //  PVector r = aTmp.End.cross( bTmp ); 
+  //  return r.z < 0;
+  //}
+  //boolean lineSegmentTouchesOrCrossesLine( LineSegment a, LineSegment b ) {
+  //  return isPointOnLine(a, b.Start)
+  //          || isPointOnLine(a, b.End)
+  //          || (isPointRightOfLine(a, b.Start) ^ isPointRightOfLine(a, b.End));
+  //}
+  //boolean doLinesIntersect( Spring sp1, Spring sp2 ) {
+  //  BoundBox box1 = new BoundBox( sp1 );
+  //  BoundBox box2 = new BoundBox( sp2 );
+  //  //box1.display();
+  //  //box2.display();
+  //  box1.mybox.display(#00FF00);
+  //  box2.mybox.display(#00FF00);
+  //  LineSegment s1 = new LineSegment( sp1.p1.position, sp1.p2.position );
+  //  LineSegment s2 = new LineSegment( sp2.p1.position, sp2.p2.position );
+    
+  //  return doBoundingBoxesIntersect(box1, box2);
+  //          //&& lineSegmentTouchesOrCrossesLine(s1, s2)
+  //          //&& lineSegmentTouchesOrCrossesLine(s2, s1);
+  //}
   
   
   
@@ -512,58 +535,3 @@ class CollisionHandler {
   //}
   
 } // end of class
-
-
-class BoundBox {
-  Spring spA;
-  PVector [] A = new PVector[2];
-  Window view;
-  
-  BoundBox( Spring sp1_ ) {
-    spA = sp1_;
-    A[0] = new PVector(0,0);
-    A[1] = new PVector(0,0);
-    this.createBox();
-    view = sp1_.myWindow;
-  }
-  
-  void createBox() {
-    A[0].x = spA.p1.position.x;
-    A[0].y = spA.p1.position.y;
-    A[1].x = spA.p2.position.x;
-    A[1].y = spA.p2.position.y;
-    
-    if (spA.p2.position.x < spA.p1.position.x) {
-      float temp = spA.p1.position.x;
-      A[0].x = spA.p2.position.x;
-      A[1].x = temp;
-    }
-    if (spA.p2.position.y < spA.p1.position.y) {
-      float temp = spA.p1.position.y;
-      A[0].y = spA.p2.position.y;
-      A[1].y = temp;
-    }
-    A[0].x -= spA.p1.diameter/4;
-    A[0].y -= spA.p1.diameter/4;
-    
-    A[1].x += spA.p1.diameter/4;
-    A[1].y += spA.p1.diameter/4;
-  }
-  
-  void display() {
-    noStroke();
-    fill(255, 0, 0);
-    rect(view.px(A[0].x),view.py(A[0].y), view.px(A[1].x-A[0].x), view.py(A[1].y-A[0].y));
-  } 
-}
-
-class LineSegment {
-  PVector Start;
-  PVector End;
-  
-  LineSegment( PVector s, PVector e ) {
-    Start = s;
-    End = e;
-  }
-  
-}
