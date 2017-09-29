@@ -41,7 +41,7 @@ class BoundBox {
   }
   
   void display() {
-    fill(255, 0, 0);
+    stroke(255, 0, 0);
     for (LineSegment ls : lines) {
       line(view.px(ls.Start.x), view.py(ls.Start.y), view.px(ls.End.x), view.py(ls.End.y));
     }

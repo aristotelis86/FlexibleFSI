@@ -180,7 +180,11 @@ class CollisionHandler {
             Boxj = new BoundBox( spj );
             Boxi.display();
             Boxj.display();
-            this.doBoundBoxesOverlap( Boxi, Boxj );
+            boolean flag = this.doBoundBoxesOverlap( Boxi, Boxj );
+            if (flag) {
+              this.ResolveSpringSpringCollisions( spi, spj );
+              //noLoop();
+            }
           }
         }
       }
@@ -206,14 +210,19 @@ class CollisionHandler {
       sp2.p2.UpdateVelocity( Vx2, Vy2 );
   }
   
-  void doBoundBoxesOverlap( BoundBox b1, BoundBox b2 ) {
+  boolean doBoundBoxesOverlap( BoundBox b1, BoundBox b2 ) {
+    Boolean overFlag = false;
     PVector [] CheckAxes = new PVector[4];
+    Boolean [] AxesColFlag = new Boolean[4];
     CheckAxes[0] = new PVector(b1.lines[0].orth.nx, b1.lines[0].orth.ny);
     CheckAxes[1] = new PVector(b1.lines[1].orth.nx, b1.lines[1].orth.ny);
     CheckAxes[2] = new PVector(b2.lines[0].orth.nx, b2.lines[0].orth.ny);
     CheckAxes[3] = new PVector(b2.lines[1].orth.nx, b2.lines[1].orth.ny);
+    for (Boolean ax : AxesColFlag) {
+      ax = false;
+    }
     
-    for (int i=0; i<4; i++) {
+    axesLoop : for (int i=0; i<4; i++) {
       float minProjB1 = PVector.dot(CheckAxes[i],b1.vertices[1]);
       float maxProjB1 = PVector.dot(CheckAxes[i],b1.vertices[1]);
       float minProjB2 = PVector.dot(CheckAxes[i],b2.vertices[1]);
@@ -228,8 +237,16 @@ class CollisionHandler {
         if (ProjB2<minProjB2) minProjB2 = ProjB2;
         if (ProjB2>maxProjB2) maxProjB2 = ProjB2;
       }
-      
+      if ((maxProjB2 < minProjB1) || (maxProjB1 < minProjB2)) {
+        AxesColFlag[i] = false;
+        break axesLoop;
+      }
+      else AxesColFlag[i] = true;
     }
+    if (AxesColFlag[0] && AxesColFlag[1] && AxesColFlag[2] && AxesColFlag[3]) {
+      overFlag = true;
+    }
+    return overFlag;
   }
   
   
