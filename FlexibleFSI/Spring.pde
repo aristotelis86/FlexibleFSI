@@ -86,6 +86,9 @@ class Spring {
     line(myWindow.px(p1.position.x), myWindow.py(p1.position.y), myWindow.px(p2.position.x), myWindow.py(p2.position.y));
   }
   
+  // Set thickness
+  void matchThickness() { thick = 0.5*(p1.diameter+p2.diameter); }
+  
   // Apply Forces on connected particles
   void ApplyAllForces() {
     // apply force due to spring

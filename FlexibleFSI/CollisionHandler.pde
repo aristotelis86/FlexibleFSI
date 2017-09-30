@@ -178,8 +178,8 @@ class CollisionHandler {
             BoundBox Boxi, Boxj;
             Boxi = new BoundBox( spi );
             Boxj = new BoundBox( spj );
-            Boxi.display();
-            Boxj.display();
+            //Boxi.displayOBB();
+            //Boxj.displayOBB();
             boolean flag = this.doBoundBoxesOverlap( Boxi, Boxj );
             if (flag) {
               this.ResolveSpringSpringCollisions( spi, spj );
@@ -223,19 +223,22 @@ class CollisionHandler {
     }
     
     axesLoop : for (int i=0; i<4; i++) {
-      float minProjB1 = PVector.dot(CheckAxes[i],b1.vertices[1]);
-      float maxProjB1 = PVector.dot(CheckAxes[i],b1.vertices[1]);
-      float minProjB2 = PVector.dot(CheckAxes[i],b2.vertices[1]);
-      float maxProjB2 = PVector.dot(CheckAxes[i],b2.vertices[1]);
+      float [] ProjB1 = new float[5];
+      float [] ProjB2 = new float[5];
+      for (int j=0; j<5; j++) {
+        ProjB1[j] = PVector.dot(CheckAxes[i],b1.vertices[j]);
+        ProjB2[j] = PVector.dot(CheckAxes[i],b2.vertices[j]);
+      }
+      float minProjB1 = ProjB1[1];
+      float maxProjB1 = ProjB1[1];
+      float minProjB2 = ProjB2[1];
+      float maxProjB2 = ProjB2[1];
       
       for (int j=2; j<5; j++) {
-        float ProjB1 = PVector.dot(CheckAxes[i],b1.vertices[j]);
-        float ProjB2 = PVector.dot(CheckAxes[i],b2.vertices[j]);
-        
-        if (ProjB1<minProjB1) minProjB1 = ProjB1;
-        if (ProjB1>maxProjB1) maxProjB1 = ProjB1;
-        if (ProjB2<minProjB2) minProjB2 = ProjB2;
-        if (ProjB2>maxProjB2) maxProjB2 = ProjB2;
+        if (ProjB1[j]<minProjB1) minProjB1 = ProjB1[j];
+        if (ProjB1[j]>maxProjB1) maxProjB1 = ProjB1[j];
+        if (ProjB2[j]<minProjB2) minProjB2 = ProjB2[j];
+        if (ProjB2[j]>maxProjB2) maxProjB2 = ProjB2[j];
       }
       if ((maxProjB2 < minProjB1) || (maxProjB1 < minProjB2)) {
         AxesColFlag[i] = false;
@@ -528,7 +531,7 @@ class CollisionHandler {
     // In this way a collision-free state is ensured by the end of this seemingly 
     // endless loop....
     this.DetectBoundCollision();
-    this.DetectCPointCPointCollision();
+    //this.DetectCPointCPointCollision();
     this.DetectSpringSpringCollision();
   }
   //// Sequential handling of collisions
