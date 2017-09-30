@@ -1,29 +1,33 @@
-/************************ Example Code *******************/
-//int nx = 150; // x-dir resolution
-//int ny = 150; // y-dir resolution
-//int N = 15;
-//PVector gravity = new PVector(6,6);
-//Window view; // convert pixels to non-dim frame
-//SimpleCollisionTest Demo;
+/**********************************************************************
+      SimpleCollisionTest class: Creates a demo to simulate
+      multiple control points colliding with each other.
 
-//void settings(){
-//    size(600, 600);
-//}
+Example code:
+int nx = 150; // x-dir resolution
+int ny = 150; // y-dir resolution
+int N = 15;
+PVector gravity = new PVector(6,6);
+Window view; // convert pixels to non-dim frame
+SimpleCollisionTest Demo;
 
-//void setup() {
-//  Window view = new Window(1, 1, nx, ny, 0, 0, width, height);
-//  Demo = new SimpleCollisionTest( N, gravity, view );
-//} // end of setup
+void settings(){
+    size(600, 600);
+}
 
-//void draw() {
-//  background(185); 
-//  Demo.runDemo();
-//}
+void setup() {
+  Window view = new Window(1, 1, nx, ny, 0, 0, width, height);
+  Demo = new SimpleCollisionTest( N, gravity, view );
+} // end of setup
 
-//void keyPressed() {
-//  Demo.terminateDemo();
-//}
-/******************************************************/
+void draw() {
+  background(185); 
+  Demo.runDemo();
+}
+
+void keyPressed() {
+  Demo.terminateDemo();
+}
+**********************************************************************/
 
 class SimpleCollisionTest {
   
