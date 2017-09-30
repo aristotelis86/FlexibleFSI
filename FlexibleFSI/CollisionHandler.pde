@@ -531,7 +531,7 @@ class CollisionHandler {
     // In this way a collision-free state is ensured by the end of this seemingly 
     // endless loop....
     this.DetectBoundCollision();
-    //this.DetectCPointCPointCollision();
+    this.DetectCPointCPointCollision();
     this.DetectSpringSpringCollision();
   }
   //// Sequential handling of collisions
