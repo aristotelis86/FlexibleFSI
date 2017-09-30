@@ -51,7 +51,7 @@ class FlexibleSheet extends LineSegBody {
     cpoints = new ControlPoint[numOfpoints];
     springs = new Spring[numOfsprings];
     
-    for (int i = 0; i < numOfpoints; i++) cpoints[i] = new ControlPoint( this.coords.get(i), pointMass, thk, window );
+    for (int i = 0; i < numOfpoints; i++) cpoints[i] = new ControlPoint( this.coords.get(i), pointMass, thk/2, window );
     for (int i = 0; i < numOfsprings; i++) springs[i] = new Spring( cpoints[i], cpoints[i+1], segLength, stiffness, damping, thk, window );
     
     //dtmax = Determine_time_step();
@@ -105,6 +105,57 @@ class FlexibleSheet extends LineSegBody {
     return newL;
   }
   
+  // Update the state of the sheet 
+  void UpdateState( float [] Xnew, float [] Ynew, float [] VXnew, float [] VYnew ) {
+    for (int i = 0; i < numOfpoints; i++) {
+      cpoints[i].UpdatePosition(Xnew[i], Ynew[i]);
+      cpoints[i].UpdateVelocity(VXnew[i], VYnew[i]);
+    }
+    this.UpdateCenter();
+    super.getOrth();
+    super.getBox();
+  }
+  
+  // Update the state of the sheet 
+  void UpdateState( float [] Xnew, float [] Ynew ) {
+    for (int i = 0; i < numOfpoints; i++) {
+      cpoints[i].UpdatePosition(Xnew[i], Ynew[i]);
+    }
+    this.UpdateCenter();
+    super.getOrth();
+    super.getBox();
+  }
+  
+  // Update the position of the center of the Body class (xc)
+  void UpdateCenter() {
+    super.xc.x = cpoints[0].position.x;
+    super.xc.y = cpoints[0].position.y;
+  }
+  
+  // Determine new steady state based on constant external forcing
+  void Calculate_Stretched_Positions( PVector F ) {
+    float g = F.mag();
+    float ll;
+    PVector newll;
+    float [] xnew = new float[numOfpoints];
+    float [] ynew = new float[numOfpoints];
+    PVector FDir = F.copy();
+    FDir.normalize();
+    
+    xnew[0] = cpoints[0].position.x; ynew[0] = cpoints[0].position.y;
+    for (int i = 0; i < numOfsprings; i++) {
+      ll = (float(numOfpoints) - float(i) - 1)*(pointMass*g/stiffness) + segLength;
+      newll = PVector.add(cpoints[i].position, PVector.mult(FDir,ll));
+      cpoints[i+1].UpdatePosition(newll.x, newll.y);
+    }
+    this.UpdateCenter();
+    super.getOrth();
+    super.getBox();
+  } // end of Calculate_Stretched_Positions
+  
+  
+  
+  
   //// Initialize state arrays for updating
   //void InitUpdateVars() {
   //  xcurrent = new float[numOfpoints]; xPred = new float[numOfpoints]; xnew = new float[numOfpoints];
@@ -144,43 +195,9 @@ class FlexibleSheet extends LineSegBody {
   //  return dt;
   //} // end of Determine_time_step
   
-  //// Determine relative positions based on the stiffness
-  //void Calculate_Stretched_Positions( PVector F ) {
-    
-  //  float g = F.mag();
-  //  float ll;
-  //  PVector newll;
-  //  float [] xnew = new float[numOfpoints];
-  //  float [] ynew = new float[numOfpoints];
-  //  PVector FDir = F.copy();
-  //  FDir.normalize();
-    
-  //  xnew[0] = cpoints[0].position.x; ynew[0] = cpoints[0].position.y;
-  //  for (int i = 0; i < numOfsprings; i++) {
-  //    ll = (float(numOfpoints) - float(i) - 1)*(pointMass*g/stiffness) + segLength;
-  //    newll = PVector.add(cpoints[i].position, PVector.mult(FDir,ll));
-  //    cpoints[i+1].UpdatePosition(newll.x, newll.y);
-  //  }
-  //} // end of Calculate_Stretched_Positions
   
-  //// Update the state of the sheet 
-  //void UpdateState( float [] Xnew, float [] Ynew, float [] VXnew, float [] VYnew ) {
-  //  for (int i = 0; i < numOfpoints; i++) {
-  //    cpoints[i].UpdatePosition(Xnew[i], Ynew[i]);
-  //    cpoints[i].UpdateVelocity(VXnew[i], VYnew[i]);
-  //  }
-  //  getOrth();
-  //  getBox();
-  //}
   
-  //// Update the state of the sheet 
-  //void UpdateState( float [] Xnew, float [] Ynew ) {
-  //  for (int i = 0; i < numOfpoints; i++) {
-  //    cpoints[i].UpdatePosition(Xnew[i], Ynew[i]);
-  //  }
-  //  getOrth();
-  //  getBox();
-  //}
+  
   
   //// Get current positions and velocities
   //void getState() {
