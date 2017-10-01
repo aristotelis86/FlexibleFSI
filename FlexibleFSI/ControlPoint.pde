@@ -231,6 +231,9 @@ class ControlPoint {
   void dampInfo( PrintWriter outFile ) {
     outFile.println(position.x+","+position.y+","+velocity.x+","+velocity.y+","+force.x+","+force.y);
   }
+  void dampInfo( PrintWriter outFile, float t ) {
+    outFile.println(t+","+position.x+","+position.y+","+velocity.x+","+velocity.y+","+force.x+","+force.y);
+  }
   
   // Get the distance between control points
   float distance(ControlPoint other) {
