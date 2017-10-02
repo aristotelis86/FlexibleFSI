@@ -104,6 +104,7 @@ for i in range(0,NSheets):
 #        plt.grid();
 #        plt.legend();
 #        plt.title(tit2,fontsize = fSize)
+        #        h.savefig("phase_space_sh"+str(i)+"_cp"+str(j)+".png")
 #        
 #        plt.figure();
 #        plt.plot(simTime,xvel,label="streamwise")
@@ -113,6 +114,7 @@ for i in range(0,NSheets):
 #        plt.grid();
 #        plt.legend();
 #        plt.title(tit2,fontsize = fSize)
+        #        h.savefig("phase_space_sh"+str(i)+"_cp"+str(j)+".png")
 #        
 #        plt.figure();
 #        plt.plot(simTime,xforce,label="streamwise")
@@ -122,6 +124,7 @@ for i in range(0,NSheets):
 #        plt.grid();
 #        plt.legend();
 #        plt.title(tit2,fontsize = fSize)
+        #        h.savefig("phase_space_sh"+str(i)+"_cp"+str(j)+".png")
         
         
         h = plt.figure(num=None, figsize=(6, 5), dpi=150)
@@ -139,7 +142,8 @@ for i in range(0,NSheets):
         sb2.yaxis.tick_right()
         plt.grid()
         plt.title("cross-stream",fontsize = fSize)
-#        h.savefig("phase_space_cp"+str(j)+".png")
+        h.suptitle(tit2, fontsize=fSize+1)
+#        h.savefig("phase_space_sh"+str(i)+"_cp"+str(j)+".png")
         
     
     
