@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Sep 25 01:39:37 2017
-
-@author: aristotelis
-"""
 
 import glob
 import re
@@ -46,23 +41,34 @@ for i in range(0,NSheets):
     lines = enerID.readlines();
     simTime = [];
     energy = [];
+    currLength = [];
     for x in lines:
         ll = x.split(",");
         simTime.append(float(ll[0]));
         energy.append(float(ll[1]));
+        currLength.append(float(ll[2]));
     
     simTime = np.array(simTime);
-    energy = np.array(energy);    
+    energy = np.array(energy);
+    currLength = np.array(currLength);
     
     tit1 = "Length=%.2f, Mass=%.2f, Points=%d \n Stiffness=%.1f, Damping=%.1f, dt=%.2e" % (Length, Mass, Points, Stiffness, Damping, dt)
         
-    plt.figure();
+    h = plt.figure(num=None, dpi=100)
     plt.plot(simTime,energy)
     plt.xlabel("simulation time",fontsize = fSize)
     plt.ylabel("energy",fontsize = fSize)
     plt.grid()
     plt.title(tit1,fontsize = fSize)
+    h.savefig("../info/FIGURES/energy_sheet"+str(i)+".png")
     
+    h = plt.figure(num=None, dpi=100)
+    plt.plot(simTime,currLength)
+    plt.xlabel("simulation time",fontsize = fSize)
+    plt.ylabel("length of sheet",fontsize = fSize)
+    plt.grid()
+    plt.title(tit1,fontsize = fSize)
+    h.savefig("../info/FIGURES/length_sheet"+str(i)+".png")
     
     pointList = glob.glob(sheetList[i]+"cpoints*.txt");
     NPoints = len(pointList);
@@ -96,38 +102,39 @@ for i in range(0,NSheets):
         yforce = np.array(yforce);
         
         tit2 = "Length=%.2f, Mass=%.2f, # Point=%d/%d \n Stiffness=%.1f, Damping=%.1f, dt=%.2e" % (Length, Mass, j+1, Points, Stiffness, Damping, dt)
-#        plt.figure();
-#        plt.plot(simTime,xpos-xpos[0],label="streamwise")
-#        plt.plot(simTime,ypos-ypos[0],label="cross-stream")
-#        plt.xlabel("simulation time",fontsize = fSize)
-#        plt.ylabel("displacement",fontsize = fSize)
-#        plt.grid();
-#        plt.legend();
-#        plt.title(tit2,fontsize = fSize)
-        #        h.savefig("phase_space_sh"+str(i)+"_cp"+str(j)+".png")
-#        
-#        plt.figure();
-#        plt.plot(simTime,xvel,label="streamwise")
-#        plt.plot(simTime,yvel,label="cross-stream")
-#        plt.xlabel("simulation time",fontsize = fSize)
-#        plt.ylabel("velocity",fontsize = fSize)
-#        plt.grid();
-#        plt.legend();
-#        plt.title(tit2,fontsize = fSize)
-        #        h.savefig("phase_space_sh"+str(i)+"_cp"+str(j)+".png")
-#        
-#        plt.figure();
-#        plt.plot(simTime,xforce,label="streamwise")
-#        plt.plot(simTime,yforce,label="cross-stream")
-#        plt.xlabel("simulation time",fontsize = fSize)
-#        plt.ylabel("force",fontsize = fSize)
-#        plt.grid();
-#        plt.legend();
-#        plt.title(tit2,fontsize = fSize)
-        #        h.savefig("phase_space_sh"+str(i)+"_cp"+str(j)+".png")
+        h = plt.figure(num=None, dpi=100)
+        plt.plot(simTime,xpos-xpos[0],label="streamwise")
+        plt.plot(simTime,ypos-ypos[0],label="cross-stream")
+        plt.xlabel("simulation time",fontsize = fSize)
+        plt.ylabel("displacement",fontsize = fSize)
+        plt.grid();
+        plt.legend();
+        plt.title(tit2,fontsize = fSize)
+        h.savefig("../info/FIGURES/displacement_sheet"+str(i)+"_cp"+str(j)+".png")
+        
+        h = plt.figure(num=None, dpi=100)
+        plt.plot(simTime,xvel,label="streamwise")
+        plt.plot(simTime,yvel,label="cross-stream")
+        plt.xlabel("simulation time",fontsize = fSize)
+        plt.ylabel("velocity",fontsize = fSize)
+        plt.grid();
+        plt.legend();
+        plt.title(tit2,fontsize = fSize)
+        h.savefig("../info/FIGURES/velocity_sheet"+str(i)+"_cp"+str(j)+".png")
+        
+        h = plt.figure(num=None, dpi=100)
+        plt.plot(simTime,xforce,label="streamwise")
+        plt.plot(simTime,yforce,label="cross-stream")
+        plt.xlabel("simulation time",fontsize = fSize)
+        plt.ylabel("force",fontsize = fSize)
+        plt.grid();
+        plt.legend();
+        plt.title(tit2,fontsize = fSize)
+        h.savefig("../info/FIGURES/force_sheet"+str(i)+"_cp"+str(j)+".png")
         
         
-        h = plt.figure(num=None, figsize=(6, 5), dpi=150)
+        phtit = "Point %d from %d" % (j+1, Points)
+        h = plt.figure(num=None, dpi=100)
         sb1 = h.add_subplot(121)
         plt.plot(xpos-xpos[0],xvel,label="streamwise")
         plt.xlabel("displacement",fontsize = fSize)
@@ -142,8 +149,8 @@ for i in range(0,NSheets):
         sb2.yaxis.tick_right()
         plt.grid()
         plt.title("cross-stream",fontsize = fSize)
-        h.suptitle(tit2, fontsize=fSize+1)
-#        h.savefig("phase_space_sh"+str(i)+"_cp"+str(j)+".png")
+        plt.suptitle(phtit, fontsize = fSize)
+        h.savefig("../info/FIGURES/phase_space_sheet"+str(i)+"_cp"+str(j)+".png")
         
     
     
