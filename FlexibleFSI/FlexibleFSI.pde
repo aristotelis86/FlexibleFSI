@@ -1,9 +1,9 @@
 int nx = 150; // x-dir resolution
 int ny = 150; // y-dir resolution
 
-float Length = 20;
+float Length = ny/4.;
 float thick = 1;
-float MassNum = 0.1;
+float MassNum = 0.5;
 int resol = 1;
 float stiffness = 100;
 PVector lpos = new PVector(nx/3.,ny/2.);
@@ -16,7 +16,7 @@ PVector gravity = new PVector(0,0);
 float t = 0;
 float dt;
 
-float sinN = 2; // mode
+float sinN = 1; // mode
 
 void settings(){
     size(600, 600);
@@ -30,22 +30,25 @@ void setup() {
   
   // Create the distortion
   float L = sheet.Length;
-  float sinAmp = L/10; // amplitude of init disturbance
+  float sinAmp = L/15; // amplitude of init disturbance
   int N = sheet.numOfpoints;
   float [] x = new float[N];
   float [] y = new float[N];
   x[0] = lpos.x;
   y[0] = lpos.y;
   for (int i = 1; i < N; i++) {
-    x[i] = (L/(N-1)) + x[i-1];
-    y[i] = sinAmp * sin(sinN*PI*(x[i]-lpos.x)/L) + lpos.y;
+    y[i] = (L/(N-1)) + y[i-1];
+    x[i] = sinAmp * sin(sinN*PI*(y[i]-lpos.y)/L) + lpos.x;
   }
   sheet.UpdateState( x, y );
   
   dt = sheet.dtmax;
-  println((sheet.Length-sheet.CurrentLength())/sheet.Length);
   
   writer = new WriteInfo(sheet);
+  writer.addGenInfo( 0, "Gravity is "+gravity.mag()+" in y-direction");
+  writer.addGenInfo( 0, "Stretched length is "+ sheet.CurrentLength() +" in y-direction");
+  writer.addGenInfo( 0, "Stretching ratio is "+ (sheet.CurrentLength()-sheet.Length)/sheet.Length);
+  writer.addGenInfo( 0, "Normal mode "+ sinN +" is tested.");
 } // end of setup
 
 void draw() {
@@ -61,7 +64,6 @@ void draw() {
   writer.dampAllInfo( t, true );
   
   t += dt;
-  noLoop();
 }
 
 

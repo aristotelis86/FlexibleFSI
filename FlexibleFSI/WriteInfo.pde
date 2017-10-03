@@ -49,21 +49,26 @@ class WriteInfo {
   }
 
   //================= Methods ====================//
-  
+  // Write some general information on the sheet
   void writeGenInfo() {
     int N = genInfoFiles.length;
     for (int i=0; i<N; i++) {
       genInfoFiles[i].println("Length: "+sheets[i].Length);
-      genInfoFiles[i].println(" Mass: "+sheets[i].Mass);
-      genInfoFiles[i].println(" Points: "+sheets[i].numOfpoints);
-      genInfoFiles[i].println(" Stiffness: "+sheets[i].stiffness);
-      genInfoFiles[i].println(" Damping: "+sheets[i].damping);
-      genInfoFiles[i].println(" dt: "+sheets[i].dtmax);
-      genInfoFiles[i].flush();
-      genInfoFiles[i].close();
+      genInfoFiles[i].println("Mass: "+sheets[i].Mass);
+      genInfoFiles[i].println("Points: "+sheets[i].numOfpoints);
+      genInfoFiles[i].println("Stiffness: "+sheets[i].stiffness);
+      genInfoFiles[i].println("Damping: "+sheets[i].damping);
+      genInfoFiles[i].println("dt: "+sheets[i].dtmax);
+      genInfoFiles[i].println("----------------------");
     }
   }
   
+  // Add extra lines in the general info file (should be object-specific)
+  void addGenInfo( int id, String str ) {
+    genInfoFiles[id].println( str );
+  }
+  
+  // Calculate and write the total energy and the length of the sheet
   void writeEnergy( float t, boolean fl ) {
     for (int i=0; i<Nfs; i++) {
       FlexibleSheet fs = sheets[i];
@@ -81,6 +86,7 @@ class WriteInfo {
     }
   }
   
+  // Write all info of control points 
   void writeCPoints( float t ) {
     for (int i=0; i<Nfs; i++) {
       for (int j=0; j<sheets[i].numOfpoints; j++) {
@@ -89,15 +95,19 @@ class WriteInfo {
     }
   }
   
+  // Method to call externally, handles all output
   void dampAllInfo( float t, boolean fl ) {
     this.writeEnergy( t, fl );
     this.writeCPoints( t );
   }
-
+  
+  // Gracefully terminate the writing of the files.
   void terminateFiles() {
     for (int i=0; i<Nfs; i++) {
       energyFiles[i].flush();
       energyFiles[i].close();
+      genInfoFiles[i].flush();
+      genInfoFiles[i].close();
       for (int j=0; j<sheets[i].numOfpoints; j++) {
         cpointsFiles[i][j].flush();
         cpointsFiles[i][j].close();
