@@ -77,7 +77,7 @@ class WriteInfo {
         EE += .5 * cpoi.mass * cpoi.velocity.mag() * cpoi.velocity.mag();
         if (fl) EE += cpoi.mass * (fs.window.idy(fs.window.dy) - cpoi.position.y);
       }
-    energyFiles[i].println(t+","+EE+","+sheet[i].CurrentLength());
+    energyFiles[i].println(t+","+EE+","+sheets[i].CurrentLength());
     }
   }
   
