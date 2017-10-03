@@ -6,10 +6,13 @@
 
 import readSpecificInfo as myLib
 
-sheetN = 0; # sheet0
-pointN = 3; # control point 3 from sheet0 (numbering of cpoints from 0)
+sheetN = 2; # sheet0
+pointN = 12; # control point 3 from sheet0 (numbering of cpoints from 0)
 
-simTime, energy, currLength = myLib.sheet_plots( sheetN )
-xpos, ypos, xvel, yvel, xforce, yforce = myLib.point_plots( sheetN, pointN )
-freq, amp  = myLib.frequency_analysis( sheetN, pointN )
+myLib.read_sheet_info( sheetN )
 
+#myLib.energy_plot( sheetN )
+#myLib.length_plot( sheetN )
+#myLib.point_plots( sheetN, pointN )
+#myLib.frequency_plot(sheetN, pointN )
+myLib.normalMode_frequency_plot( sheetN, pointN, 1, 0.1 )

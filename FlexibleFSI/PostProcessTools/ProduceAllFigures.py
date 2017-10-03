@@ -6,7 +6,9 @@
 
 import glob
 import readSpecificInfo as myLib
+import time
 
+start = time.time()
 
 sheetList = glob.glob("../info/sheet*/");
 NSheets = len(sheetList);
@@ -21,7 +23,7 @@ for i in range(0,NSheets):
         myLib.point_plots( i, j );
         myLib.frequency_analysis( i, j );
         
-        
 
+print("It took", time.time()-start,"s to run.");
 
     
