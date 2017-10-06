@@ -5,18 +5,18 @@ float Length = ny/4.;
 float thick = 1;
 float MassNum = 0.5;
 int resol = 1;
-float stiffness = 100;
+float stiffness = 500;
 PVector lpos = new PVector(nx/3.,ny/2.);
 PVector align = new PVector(0,1);
 FlexibleSheet sheet;
 Window view; // convert pixels to non-dim frame
 WriteInfo writer;
 
-PVector gravity = new PVector(0,0);
+PVector gravity = new PVector(0,10);
 float t = 0;
 float dt;
 
-float sinN = 1; // mode
+float maxVel = 20;
 
 void settings(){
     size(600, 600);
@@ -26,21 +26,18 @@ void setup() {
   Window view = new Window(1, 1, nx, ny, 0, 0, width, height);
   sheet = new FlexibleSheet( Length, thick, MassNum, resol, stiffness, lpos, align, view );
   sheet.cpoints[0].makeFixed();
-  sheet.cpoints[sheet.numOfpoints-1].makeFixed();
+  sheet.Calculate_Stretched_Positions( gravity );
   
-  // Create the distortion
-  float L = sheet.Length;
-  float sinAmp = L/15; // amplitude of init disturbance
+  // Apply the impulse
   int N = sheet.numOfpoints;
-  float [] x = new float[N];
-  float [] y = new float[N];
-  x[0] = lpos.x;
-  y[0] = lpos.y;
+  float [] vx = new float[N];
+  float [] vy = new float[N];
+  
   for (int i = 1; i < N; i++) {
-    y[i] = (L/(N-1)) + y[i-1];
-    x[i] = sinAmp * sin(sinN*PI*(y[i]-lpos.y)/L) + lpos.x;
+    vx[i] = ((i-1)/(N-2)) * maxVel;
+    vy[i] = sheet.cpoints[i].velocity.y;
+    sheet.cpoints[i].UpdateVelocity( vx[i], vy[i] );
   }
-  sheet.UpdateState( x, y );
   
   dt = sheet.dtmax;
   
@@ -48,7 +45,7 @@ void setup() {
   writer.addGenInfo( 0, "Gravity is "+gravity.mag()+" in y-direction");
   writer.addGenInfo( 0, "Stretched length is "+ sheet.CurrentLength() +" in y-direction");
   writer.addGenInfo( 0, "Stretching ratio is "+ (sheet.CurrentLength()-sheet.Length)/sheet.Length);
-  writer.addGenInfo( 0, "Normal mode "+ sinN +" is tested.");
+  writer.addGenInfo( 0, "Velocity of trailing edge is "+ maxVel +" in x-direction.");
 } // end of setup
 
 void draw() {

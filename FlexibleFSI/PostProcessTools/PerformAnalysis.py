@@ -6,8 +6,8 @@
 
 import sheetprocessing as myLib
 
-sheetN = 0; # sheet2 (numbering of sheets from 0)
-pointN = 19; # control point 12 from sheet2 (numbering of cpoints from 0)
+sheetN = 0; # sheet (numbering of sheets from 0)
+pointN = 19; # control point from sheet (numbering of cpoints from 0)
 
 myLib.read_sheet_info( sheetN ) # just print available information on the sheet
 
