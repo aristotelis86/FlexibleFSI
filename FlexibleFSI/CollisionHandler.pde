@@ -54,7 +54,22 @@ class CollisionHandler {
     for (int i=0; i<Ncp; i++) LocalCPoints.add(cpoints[i]);
     LocalSprings.add(spring);
   }
-  
+  CollisionHandler( FlexibleSheet [] sheet ) {
+    int Nfs = sheet.length;
+    
+    Ncp = 0;
+    Nsp = 0;
+    for (int ij=0; ij<Nfs; ij++) {
+      for (int i=0; i<sheet[ij].numOfpoints; i++) {
+        LocalCPoints.add(sheet[ij].cpoints[i]);
+        Ncp++;
+      }
+      for (int i=0; i<sheet[ij].numOfsprings; i++) {
+        LocalSprings.add(sheet[ij].springs[i]);
+        Nsp++;
+      }
+    }
+  }
   
   //================= Method ====================//
   // Detect Boundary Collisions
