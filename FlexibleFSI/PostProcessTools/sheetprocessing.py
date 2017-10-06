@@ -24,7 +24,7 @@ def read_sheet_info( sheetN, show=True ):
 
         for x in lines:
             ll = x.split();
-            info.append(ll[1]);
+            info.append(ll[-1]);
     
         Length = float(info[0]);
         Mass = float(info[1]);
@@ -271,6 +271,7 @@ def normalMode_frequency_plot( sheetN, pointN, mode, stretchRatio, align="y" ):
     figtit = "Length=%.2f, Mass=%.2f, # Point=%d/%d \n Stiffness=%.1f, Damping=%.1f, dt=%.2e" % (L, M, pointN+1, P, S, D, dt)
 
     expFreq = np.sqrt(P*S*stretchRatio/M)*mode/(2*L)
+#    expFreq = np.sqrt(P*S/M)*mode/(2*L)
     
     if (align=="x"):
         freq, spec = custom_FFT( ypos, dt );
@@ -284,7 +285,7 @@ def normalMode_frequency_plot( sheetN, pointN, mode, stretchRatio, align="y" ):
     plt.title(figtit, fontsize=fSize)
     plt.xlabel("frequency",fontsize=fSize)
     plt.ylabel("power",fontsize=fSize)
-    plt.xlim(0,5)
+    plt.xlim(0,3*freq[PeakInd[0]])
     plt.legend()
     plt.grid();
     h.savefig("../info/FIGURES/fft_mode"+str(mode)+"_sheet"+str(sheetN)+"_cp"+str(pointN)+".png")
@@ -337,6 +338,7 @@ def custom_FFT( data, stepT ):
     freq = np.linspace(0.0, 1.0/(2.0*stepT), Nsize//2)
     
     return freq[1:], 2.0/Nsize * np.abs(fftOut[1:Nsize//2])
+#    return freq, 2.0/Nsize * np.abs(fftOut[0:Nsize//2])
 
 
 # Found it on: http://nbviewer.jupyter.org/github/demotu/BMC/blob/master/notebooks/DetectPeaks.ipynb
