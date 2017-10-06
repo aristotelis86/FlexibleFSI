@@ -242,15 +242,20 @@ def frequency_plot( sheetN, pointN ):
     plt.close(h)
     
     freq, spec = custom_FFT( ypos, dt );
+    PeakInd = detect_peaks(spec);
+    
+    plotText = "First 3 dominant Frequencies \n 1: %.3f \n 2: %.3f \n 3: %.3f" % (freq[PeakInd[0]], freq[PeakInd[1]], freq[PeakInd[2]]); 
+    
     
     h = plt.figure(num=None, figsize=figSize, dpi=myDpi)
     plt.plot(freq, spec)
     plt.title(figtit, fontsize=fSize)
     plt.xlabel("frequency",fontsize=fSize)
     plt.ylabel("power",fontsize=fSize)
-    plt.xlim(0,5)
+    plt.xlim(0,3*freq[PeakInd[2]])
     plt.legend()
     plt.grid();
+    plt.text(2.8*freq[PeakInd[2]], freq[PeakInd[3]], plotText, horizontalalignment='right', fontsize=fSize-1)
     h.savefig("../info/FIGURES/fft_cross_sheet"+str(sheetN)+"_cp"+str(pointN)+".png")
     plt.close(h)
     
@@ -279,6 +284,8 @@ def normalMode_frequency_plot( sheetN, pointN, mode, stretchRatio, align="y" ):
         freq, spec = custom_FFT( xpos, dt );
     PeakInd = detect_peaks(spec);
     
+    plotText = "Expected - Recorded \n %.3f - %.3f" % (expFreq1, freq[PeakInd[0]]); 
+    
     h = plt.figure(num=None, figsize=figSize, dpi=myDpi)
     plt.plot(freq, spec, label="data")
     plt.plot([expFreq, expFreq],[0, max(spec)], label="expected")
@@ -288,6 +295,7 @@ def normalMode_frequency_plot( sheetN, pointN, mode, stretchRatio, align="y" ):
     plt.xlim(0,3*freq[PeakInd[0]])
     plt.legend()
     plt.grid();
+    plt.text(2.8*freq[PeakInd[0]], freq[PeakInd[2]], plotText, horizontalalignment='right', fontsize=fSize-1)
     h.savefig("../info/FIGURES/fft_mode"+str(mode)+"_sheet"+str(sheetN)+"_cp"+str(pointN)+".png")
     plt.close(h)
     
@@ -315,6 +323,8 @@ def impulse_frequency_analysis( sheetN, pointN, newL, g=10, align="y" ):
     expFreq2 = (5.5021/(4*np.pi))*np.sqrt(g/newL);
     expFreq3 = (8.6537/(4*np.pi))*np.sqrt(g/newL);
     
+    plotText = "Expected - Recorded \n %.3f - %.3f \n %.3f - %.3f \n %.3f - %.3f" % (expFreq1, freq[PeakInd[0]], expFreq2, freq[PeakInd[1]], expFreq3, freq[PeakInd[2]]); 
+    
     h = plt.figure(num=None, figsize=figSize, dpi=myDpi)
     plt.plot(freq, spec, label="data")
     plt.plot([expFreq1, expFreq1],[0, max(spec)], label="expected 1")
@@ -323,9 +333,10 @@ def impulse_frequency_analysis( sheetN, pointN, newL, g=10, align="y" ):
     plt.title(figtit, fontsize=fSize)
     plt.xlabel("frequency",fontsize=fSize)
     plt.ylabel("power",fontsize=fSize)
-    plt.xlim(0,5)
+    plt.xlim(0,3*freq[PeakInd[2]])
     plt.legend()
     plt.grid();
+    plt.text(2.8*freq[PeakInd[2]], freq[PeakInd[3]], plotText, horizontalalignment='right', fontsize=fSize-1)
     h.savefig("../info/FIGURES/fft_impulse_sheet"+str(sheetN)+"_cp"+str(pointN)+".png")
     plt.close(h)
     
