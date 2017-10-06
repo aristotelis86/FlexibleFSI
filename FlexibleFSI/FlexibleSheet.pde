@@ -21,7 +21,7 @@ class FlexibleSheet extends LineSegBody {
   ControlPoint [] cpoints; // stores the control points of the system
   Spring [] springs; // stores the connecting springs
   
-  FlexibleSheet( float L_, float th_, float M_, int resol, float stiffness_, PVector lpos, PVector align, Window window ) {
+  FlexibleSheet( float L_, float th_, float M_, int resol, float stiffness_, PVector lpos, PVector align, Window window, boolean damp ) {
     super(lpos.x, lpos.y, window); 
     thk = th_;
     weight = window.pdx(thk);
@@ -41,8 +41,11 @@ class FlexibleSheet extends LineSegBody {
     numOfsprings = numOfpoints - 1;
     segLength = resol; // resting length of each spring
     Mass = pointMass * numOfpoints;
-    //damping = Determine_damping();
-    damping = 0;
+    
+    if (damp) {
+      damping = Determine_damping(); 
+    }
+    else damping = 0;
     
     cpoints = new ControlPoint[numOfpoints];
     springs = new Spring[numOfsprings];
@@ -50,14 +53,16 @@ class FlexibleSheet extends LineSegBody {
     for (int i = 0; i < numOfpoints; i++) cpoints[i] = new ControlPoint( this.coords.get(i), pointMass, thk/2, window );
     for (int i = 0; i < numOfsprings; i++) springs[i] = new Spring( cpoints[i], cpoints[i+1], segLength, stiffness, damping, thk, window );
     
-    //dtmax = Determine_time_step();
-    this.EigStiffMatrix();
-    //dtmax = 0.005;
+    if (damp) {
+      dtmax = Determine_time_step();
+    }
+    else this.EigStiffMatrix();
+    
   } // end of Constructor
   
-  //FlexibleSheet( float L_, float th_, float M_, float stiffness_, float x, float y, PVector align, Window window ) {
-  //  this( L_, th_, M_, 1, stiffness_, x, y, align, window);
-  //}
+  FlexibleSheet( float L_, float th_, float M_, int resol, float stiffness_, PVector lpos, PVector align, Window window ) {
+    this( L_, th_, M_, resol, stiffness_, lpos, align, window, true);
+  }
   
   //============================= Methods =================================//
   // !!!! override parent class method !!!!
