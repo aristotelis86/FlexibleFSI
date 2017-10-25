@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 # Use this script to produce graphics and extract information for a specific
-# sheet and/or control point.
+# sheet and/or control point. (Needs modification to call the functions for the 
+# required analysis, example calls are given)
 
 import sheetprocessing as myLib
 
@@ -25,17 +26,9 @@ myLib.frequency_plot( sheetN, pointN ) # create+save plots of the FFT analysis
 
 myLib.normalMode_frequency_plot( sheetN, pointN, mode=1, stretchRatio=0.011, align="y" )
 # create+save the plot of the FFT analysis of the vibration (pinned-pinned)
-# tracked by one control point. The mode (1,2,3,..) is needed as well as the 
-# stretching ratio of the entire sheet and its alignment (x,y). 
-# This information should be available as an output from READ_SHEET_INFO function.
-
-myLib.impulse_frequency_analysis( sheetN, pointN, newL=44.03, g=10, align="y" )
+# tracked by one control point. 
+                                       
+myLib.impulse_frequency_analysis( sheetN, newL=44.03, pointN, g=10, align="y" )
 # create+save the plot of the FFT analysis of the vibration (pinned-free)
-# tracked by one control point. The first three dominant frequencies are 
-# identified and displayed. The stretched length newL is needed, the magnitude 
-# of gravity g and the alignment (x,y) of the system.
-# This information should be available as an output from READ_SHEET_INFO function.
-
-#########################################################################
-# Add automated selection process in normalMode and impulse functions.
-# Points should be selected accordingly.
+# tracked by one control point. 
+                                       

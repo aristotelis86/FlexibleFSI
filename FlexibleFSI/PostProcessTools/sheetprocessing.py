@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import os.path
+import os
 import numpy as np
+from math import floor
 from scipy.fftpack import fft
 import matplotlib.pyplot as plt
 
+readDir = "../info/"
+saveDir = "../info/FIGURES/"
+if not os.path.exists(saveDir):
+    os.makedirs(saveDir)
 
 plt.ioff();
 fSize = 14;
@@ -16,7 +21,7 @@ def read_sheet_info( sheetN, show=True ):
     # Reads information file of (integer) sheetN.
     # Relevant parameters are printed to cmd line.
     
-    filename = "../info/sheet"+str(sheetN)+"/generalInfo.txt";
+    filename = readDir+"sheet"+str(sheetN)+"/generalInfo.txt";
     if os.path.isfile(filename):
         infoID = open(filename,"r");
         lines = infoID.readlines();
@@ -54,7 +59,7 @@ def read_sheet_info( sheetN, show=True ):
 def read_energy_file( sheetN ):
     # Reads energy file of (integer) sheetN.
     # The output of the function is the time, energy and instantaneous length.
-    filename = "../info/sheet"+str(sheetN)+"/energy.txt";
+    filename = readDir+"sheet"+str(sheetN)+"/energy.txt";
     if os.path.isfile(filename):
         enerID = open(filename,"r");
         lines = enerID.readlines();
@@ -81,7 +86,7 @@ def read_cpoint_file( sheetN, pointN ):
     # (integer) sheetN. 
     # The output of the function is time, x,y-position, x,y-velocity,
     # x,y-force. 
-    filename = "../info/sheet"+str(sheetN)+"/cpoints"+str(pointN)+".txt";
+    filename = readDir+"sheet"+str(sheetN)+"/cpoints"+str(pointN)+".txt";
     if os.path.isfile(filename):
         pointID = open(filename,"r");
         lines = pointID.readlines();
@@ -130,7 +135,7 @@ def energy_plot( sheetN ):
     plt.ylabel("energy",fontsize = fSize)
     plt.grid()
     plt.title(figTitle,fontsize = fSize)
-    h.savefig("../info/FIGURES/energy_sheet"+str(sheetN)+".png")
+    h.savefig(saveDir+"energy_sheet"+str(sheetN)+".png")
     plt.close(h)
     
     return;
@@ -149,7 +154,7 @@ def length_plot( sheetN ):
     plt.ylabel("length of sheet",fontsize = fSize)
     plt.grid()
     plt.title(figTitle,fontsize = fSize)
-    h.savefig("../info/FIGURES/length_sheet"+str(sheetN)+".png")
+    h.savefig(saveDir+"length_sheet"+str(sheetN)+".png")
     plt.close(h)
     
     return;
@@ -172,7 +177,7 @@ def point_plots( sheetN, pointN ):
     plt.grid();
     plt.legend();
     plt.title(figTitle,fontsize = fSize)
-    h.savefig("../info/FIGURES/displacement_sheet"+str(sheetN)+"_cp"+str(pointN)+".png")
+    h.savefig(saveDir+"displacement_sheet"+str(sheetN)+"_cp"+str(pointN)+".png")
     plt.close(h)
         
     h = plt.figure(num=None, figsize=figSize, dpi=myDpi)
@@ -183,7 +188,7 @@ def point_plots( sheetN, pointN ):
     plt.grid();
     plt.legend();
     plt.title(figTitle,fontsize = fSize)
-    h.savefig("../info/FIGURES/velocity_sheet"+str(sheetN)+"_cp"+str(pointN)+".png")
+    h.savefig(saveDir+"velocity_sheet"+str(sheetN)+"_cp"+str(pointN)+".png")
     plt.close(h)
         
     h = plt.figure(num=None, figsize=figSize, dpi=myDpi)
@@ -194,7 +199,7 @@ def point_plots( sheetN, pointN ):
     plt.grid();
     plt.legend();
     plt.title(figTitle,fontsize = fSize)
-    h.savefig("../info/FIGURES/force_sheet"+str(sheetN)+"_cp"+str(pointN)+".png")
+    h.savefig(saveDir+"force_sheet"+str(sheetN)+"_cp"+str(pointN)+".png")
     plt.close(h)
         
     phtit = "Point %d from %d" % (pointN+1, P)
@@ -214,19 +219,26 @@ def point_plots( sheetN, pointN ):
     plt.grid()
     plt.title("cross-stream",fontsize = fSize)
     plt.suptitle(phtit, fontsize = fSize)
-    h.savefig("../info/FIGURES/phase_space_sheet"+str(sheetN)+"_cp"+str(pointN)+".png")
+    h.savefig(saveDir+"phase_space_sheet"+str(sheetN)+"_cp"+str(pointN)+".png")
     plt.close(h)
 
     return;
     
-def frequency_plot( sheetN, pointN ):
+def frequency_plot( sheetN, pointN=-1 ):
     # General frequency plot of the motion of control point 
-    # (integer) pointN from sheet (integer) sheetN. 
+    # (integer) pointN from sheet (integer) sheetN.
+    # If pointN is negative, the last control point is selected (tail).
     
     L, M, P, S, D, dt = read_sheet_info( sheetN, show=False );
-    simTime, xpos, ypos, xvel, yvel, xforce, yforce = read_cpoint_file( sheetN, pointN );
     
-    figtit = "Length=%.2f, Mass=%.2f, # Point=%d/%d \n Stiffness=%.1f, Damping=%.1f, dt=%.2e" % (L, M, pointN+1, P, S, D, dt)
+    if pointN<0:
+        simTime, xpos, ypos, xvel, yvel, xforce, yforce = read_cpoint_file( sheetN, P-1 );
+        myPoint = P-1
+    else:
+        simTime, xpos, ypos, xvel, yvel, xforce, yforce = read_cpoint_file( sheetN, pointN );
+        myPoint = pointN
+    
+    figtit = "Length=%.2f, Mass=%.2f, # Point=%d/%d \n Stiffness=%.1f, Damping=%.1f, dt=%.2e" % (L, M, myPoint+1, P, S, D, dt)
         
     freq, spec = custom_FFT( xpos, dt );
     
@@ -238,14 +250,13 @@ def frequency_plot( sheetN, pointN ):
     plt.xlim(0,5)
     plt.legend()
     plt.grid();
-    h.savefig("../info/FIGURES/fft_stream_sheet"+str(sheetN)+"_cp"+str(pointN)+".png")
+    h.savefig(saveDir+"fft_stream_sheet"+str(sheetN)+"_cp"+str(myPoint)+".png")
     plt.close(h)
     
     freq, spec = custom_FFT( ypos, dt );
     PeakInd = detect_peaks(spec);
     
     plotText = "First 3 dominant Frequencies \n 1: %.3f \n 2: %.3f \n 3: %.3f" % (freq[PeakInd[0]], freq[PeakInd[1]], freq[PeakInd[2]]); 
-    
     
     h = plt.figure(num=None, figsize=figSize, dpi=myDpi)
     plt.plot(freq, spec)
@@ -256,27 +267,43 @@ def frequency_plot( sheetN, pointN ):
     plt.legend()
     plt.grid();
     plt.text(2.8*freq[PeakInd[2]], freq[PeakInd[3]], plotText, horizontalalignment='right', fontsize=fSize-1)
-    h.savefig("../info/FIGURES/fft_cross_sheet"+str(sheetN)+"_cp"+str(pointN)+".png")
+    h.savefig(saveDir+"fft_cross_sheet"+str(sheetN)+"_cp"+str(myPoint)+".png")
     plt.close(h)
     
     return;
 
 
-def normalMode_frequency_plot( sheetN, pointN, mode, stretchRatio, align="y" ):
+def normalMode_frequency_plot( sheetN, pointN=-1, mode=1, stretchRatio=0.1, align="y" ):
     # Frequency plot of the motion of control point 
     # (integer) pointN from sheet (integer) sheetN.
-    # Information related to the normal mode under 
-    # study is also printed on the figure and cmd.
-    # The number of the mode should be input and 
-    # the ratio of the initial stretch of the sheet.
+    # The mode (1,2,3,..) is needed as well as the 
+    # stretching ratio of the entire sheet and its 
+    # alignment (x,y). This information should be 
+    # available as an output from 
+    #
+    #     READ_SHEET_INFO
+    #
+    # function. The dominant frequency expected and
+    # recorded from the data is given on the fig.
     
     L, M, P, S, D, dt = read_sheet_info( sheetN, show=False );
-    simTime, xpos, ypos, xvel, yvel, xforce, yforce = read_cpoint_file( sheetN, pointN );
     
-    figtit = "Length=%.2f, Mass=%.2f, # Point=%d/%d \n Stiffness=%.1f, Damping=%.1f, dt=%.2e" % (L, M, pointN+1, P, S, D, dt)
+    if (mode==1 or mode==3):
+        if pointN<0:
+            simTime, xpos, ypos, xvel, yvel, xforce, yforce = read_cpoint_file( sheetN, floor(P/2) );
+            myPoint = floor(P/2)
+    elif mode==2:
+        if pointN<0:
+            simTime, xpos, ypos, xvel, yvel, xforce, yforce = read_cpoint_file( sheetN, floor(P/4) );
+            myPoint = floor(P/4)
+    else:
+        print("\n ")
+        print("Please define mode number and control point to proceed!\n")
+        return 0;
+
+    figtit = "Length=%.2f, Mass=%.2f, # Point=%d/%d \n Stiffness=%.1f, Damping=%.1f, dt=%.2e" % (L, M, myPoint+1, P, S, D, dt)
 
     expFreq = np.sqrt(P*S*stretchRatio/M)*mode/(2*L)
-#    expFreq = np.sqrt(P*S/M)*mode/(2*L)
     
     if (align=="x"):
         freq, spec = custom_FFT( ypos, dt );
@@ -284,7 +311,7 @@ def normalMode_frequency_plot( sheetN, pointN, mode, stretchRatio, align="y" ):
         freq, spec = custom_FFT( xpos, dt );
     PeakInd = detect_peaks(spec);
     
-    plotText = "Expected - Recorded \n %.3f - %.3f" % (expFreq1, freq[PeakInd[0]]); 
+    plotText = "Expected - Recorded \n %.3f - %.3f" % (expFreq, freq[PeakInd[0]]); 
     
     h = plt.figure(num=None, figsize=figSize, dpi=myDpi)
     plt.plot(freq, spec, label="data")
@@ -296,22 +323,32 @@ def normalMode_frequency_plot( sheetN, pointN, mode, stretchRatio, align="y" ):
     plt.legend()
     plt.grid();
     plt.text(2.8*freq[PeakInd[0]], freq[PeakInd[2]], plotText, horizontalalignment='right', fontsize=fSize-1)
-    h.savefig("../info/FIGURES/fft_mode"+str(mode)+"_sheet"+str(sheetN)+"_cp"+str(pointN)+".png")
+    h.savefig(saveDir+"fft_mode"+str(mode)+"_sheet"+str(sheetN)+"_cp"+str(myPoint)+".png")
     plt.close(h)
     
     print("Expected resonance frequency was %.3f and was found %.3f" % (expFreq, freq[PeakInd[0]]))
-    return;
+    return 1;
         
-def impulse_frequency_analysis( sheetN, pointN, newL, g=10, align="y" ):
+def impulse_frequency_analysis( sheetN, newL, pointN=-1, g=10, align="y" ):
     # Perform frequency analysis of the motion of control point 
     # (integer) pointN from sheet (integer) sheetN. Refers to
-    # the impulse test. The magnitude of gravity used must be 
-    # given. 
+    # the impulse test. The stretched length newL is needed, the 
+    # magnitude of gravity g and the alignment (x,y) of the system.
+    # The first three dominant frequencies are identified and 
+    # displayed. 
+    # This required information should be available as the output 
+    # of READ_SHEET_INFO function.
+
     
     L, M, P, S, D, dt = read_sheet_info( sheetN, show=False );
-    simTime, xpos, ypos, xvel, yvel, xforce, yforce = read_cpoint_file( sheetN, pointN );
+    if pointN<0:
+        simTime, xpos, ypos, xvel, yvel, xforce, yforce = read_cpoint_file( sheetN, P-1 );
+        myPoint = P-1;
+    else:
+        simTime, xpos, ypos, xvel, yvel, xforce, yforce = read_cpoint_file( sheetN, pointN );
+        myPoint = pointN;
     
-    figtit = "Length=%.2f, Mass=%.2f, # Point=%d/%d \n Stiffness=%.1f, Damping=%.1f, dt=%.2e" % (L, M, pointN+1, P, S, D, dt)
+    figtit = "Length=%.2f, Mass=%.2f, # Point=%d/%d \n Stiffness=%.1f, Damping=%.1f, dt=%.2e" % (L, M, myPoint+1, P, S, D, dt)
     
     if (align=="x"):
         freq, spec = custom_FFT( ypos, dt );
@@ -337,7 +374,7 @@ def impulse_frequency_analysis( sheetN, pointN, newL, g=10, align="y" ):
     plt.legend()
     plt.grid();
     plt.text(2.8*freq[PeakInd[2]], freq[PeakInd[3]], plotText, horizontalalignment='right', fontsize=fSize-1)
-    h.savefig("../info/FIGURES/fft_impulse_sheet"+str(sheetN)+"_cp"+str(pointN)+".png")
+    h.savefig(saveDir+"fft_impulse_sheet"+str(sheetN)+"_cp"+str(myPoint)+".png")
     plt.close(h)
     
     return;
@@ -349,7 +386,7 @@ def custom_FFT( data, stepT ):
     freq = np.linspace(0.0, 1.0/(2.0*stepT), Nsize//2)
     
     return freq[1:], 2.0/Nsize * np.abs(fftOut[1:Nsize//2])
-#    return freq, 2.0/Nsize * np.abs(fftOut[0:Nsize//2])
+
 
 
 # Found it on: http://nbviewer.jupyter.org/github/demotu/BMC/blob/master/notebooks/DetectPeaks.ipynb
