@@ -49,10 +49,11 @@ class SimpleCollisionTest {
     myInfo = new PrintWriter[N];
   
     for (int i=0; i<N; i++) {
-      cpoints[i] = new ControlPoint( new PVector(random(view.x.inE),random(view.y.inE)), 5,  10, view );
+      cpoints[i] = new ControlPoint( new PVector(random(view.x.inE),random(view.y.inE)), 5,  5, view );
       myInfo[i] = createWriter("./info/cpoints"+i+".txt");
     }
     collider = new CollisionHandler( cpoints );
+    collider.setBounce( 0.1 );
   }
   
   //================= Methods =====================//
@@ -65,7 +66,8 @@ class SimpleCollisionTest {
       cp.updateAlt2( 0.1 );
     }
     
-    collider.HandleCollisions();
+    //collider.HandleCollisions();
+    collider.DetectBoundCollision();
     for (ControlPoint cp : cpoints) cp.display();
     for (int i=0; i<N; i++) cpoints[i].dampInfo(myInfo[i]);
   }

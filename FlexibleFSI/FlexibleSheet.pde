@@ -106,322 +106,322 @@ class FlexibleSheet extends LineSegBody {
     return newL;
   }
   
-  // Update the state of the sheet 
-  void UpdateState( float [] Xnew, float [] Ynew, float [] VXnew, float [] VYnew ) {
-    for (int i = 0; i < numOfpoints; i++) {
-      cpoints[i].UpdatePosition(Xnew[i], Ynew[i]);
-      cpoints[i].UpdateVelocity(VXnew[i], VYnew[i]);
-    }
-    this.UpdateCenter();
-    super.getOrth();
-    super.getBox();
-  }
+  //// Update the state of the sheet 
+  //void UpdateState( float [] Xnew, float [] Ynew, float [] VXnew, float [] VYnew ) {
+  //  for (int i = 0; i < numOfpoints; i++) {
+  //    cpoints[i].UpdatePosition(Xnew[i], Ynew[i]);
+  //    cpoints[i].UpdateVelocity(VXnew[i], VYnew[i]);
+  //  }
+  //  this.UpdateCenter();
+  //  super.getOrth();
+  //  super.getBox();
+  //}
   
-  // Update the state of the sheet 
-  void UpdateState( float [] Xnew, float [] Ynew ) {
-    for (int i = 0; i < numOfpoints; i++) {
-      cpoints[i].UpdatePosition(Xnew[i], Ynew[i]);
-    }
-    this.UpdateCenter();
-    super.getOrth();
-    super.getBox();
-  }
+  //// Update the state of the sheet 
+  //void UpdateState( float [] Xnew, float [] Ynew ) {
+  //  for (int i = 0; i < numOfpoints; i++) {
+  //    cpoints[i].UpdatePosition(Xnew[i], Ynew[i]);
+  //  }
+  //  this.UpdateCenter();
+  //  super.getOrth();
+  //  super.getBox();
+  //}
   
-  // Update the position of the center of the Body class (xc)
-  void UpdateCenter() {
-    super.xc.x = cpoints[0].position.x;
-    super.xc.y = cpoints[0].position.y;
-  }
+  //// Update the position of the center of the Body class (xc)
+  //void UpdateCenter() {
+  //  super.xc.x = cpoints[0].position.x;
+  //  super.xc.y = cpoints[0].position.y;
+  //}
   
-  // Determine new steady state based on constant external forcing
-  void Calculate_Stretched_Positions( PVector F ) {
-    float g = F.mag();
-    float ll;
-    PVector newll;
-    float [] xnew = new float[numOfpoints];
-    float [] ynew = new float[numOfpoints];
-    PVector FDir = F.copy();
-    FDir.normalize();
+  //// Determine new steady state based on constant external forcing
+  //void Calculate_Stretched_Positions( PVector F ) {
+  //  float g = F.mag();
+  //  float ll;
+  //  PVector newll;
+  //  float [] xnew = new float[numOfpoints];
+  //  float [] ynew = new float[numOfpoints];
+  //  PVector FDir = F.copy();
+  //  FDir.normalize();
     
-    xnew[0] = cpoints[0].position.x; ynew[0] = cpoints[0].position.y;
-    for (int i = 0; i < numOfsprings; i++) {
-      ll = (float(numOfpoints) - float(i) - 1)*(pointMass*g/stiffness) + segLength;
-      newll = PVector.add(cpoints[i].position, PVector.mult(FDir,ll));
-      cpoints[i+1].UpdatePosition(newll.x, newll.y);
-    }
-    this.UpdateCenter();
-    super.getOrth();
-    super.getBox();
-  } // end of Calculate_Stretched_Positions
+  //  xnew[0] = cpoints[0].position.x; ynew[0] = cpoints[0].position.y;
+  //  for (int i = 0; i < numOfsprings; i++) {
+  //    ll = (float(numOfpoints) - float(i) - 1)*(pointMass*g/stiffness) + segLength;
+  //    newll = PVector.add(cpoints[i].position, PVector.mult(FDir,ll));
+  //    cpoints[i+1].UpdatePosition(newll.x, newll.y);
+  //  }
+  //  this.UpdateCenter();
+  //  super.getOrth();
+  //  super.getBox();
+  //} // end of Calculate_Stretched_Positions
   
-  // Move for testing purposes (translation only)
-  void move() {
-    for (ControlPoint cp : cpoints) {
-      cp.velocity = new PVector(0.1, .2);
-      cp.position.add( cp.velocity );
-    }
-    this.UpdateCenter();
-    super.getOrth();
-    super.getBox();
-  }
+  //// Move for testing purposes (translation only)
+  //void move() {
+  //  for (ControlPoint cp : cpoints) {
+  //    cp.velocity = new PVector(0.1, .2);
+  //    cp.position.add( cp.velocity );
+  //  }
+  //  this.UpdateCenter();
+  //  super.getOrth();
+  //  super.getBox();
+  //}
   
-  // Apply internal Forces to control points
-  void ApplyIntForces() {
-    for (Spring s : springs) s.ApplyAllForces();
-  }
+  //// Apply internal Forces to control points
+  //void ApplyIntForces() {
+  //  for (Spring s : springs) s.ApplyAllForces();
+  //}
   
-  // Apply external forces to control points
-  void ApplyExtForces( PVector [] F) {
-    for (int i=0; i<numOfpoints; i++) cpoints[i].force.add(F[i]);
-  }
+  //// Apply external forces to control points
+  //void ApplyExtForces( PVector [] F) {
+  //  for (int i=0; i<numOfpoints; i++) cpoints[i].force.add(F[i]);
+  //}
   
-  // Apply gravitational Forces to particles
-  void ApplyGravity( PVector g) {
-    for (ControlPoint cp : cpoints) {
-      PVector extg = g.copy();
-      extg.mult(cp.mass);
-      cp.ApplyForce(extg);
-    }
-  }
+  //// Apply gravitational Forces to particles
+  //void ApplyGravity( PVector g) {
+  //  for (ControlPoint cp : cpoints) {
+  //    PVector extg = g.copy();
+  //    extg.mult(cp.mass);
+  //    cp.ApplyForce(extg);
+  //  }
+  //}
   
-  // Clear all forces acting in control points
-  void ClearForces() {
-    for (ControlPoint p : cpoints) p.clearForce();
-  }
+  //// Clear all forces acting in control points
+  //void ClearForces() {
+  //  for (ControlPoint p : cpoints) p.clearForce();
+  //}
   
-  // calculate the pressure force at each point
-  PVector [] pressForcePoints ( Field p ) {
+  //// calculate the pressure force at each point
+  //PVector [] pressForcePoints ( Field p ) {
     
-    int orthSize = orth.length;
-    PVector [] pf = new PVector[numOfpoints];
-    for (int i=0; i<numOfpoints; i++) pf[i] = new PVector(0, 0);
+  //  int orthSize = orth.length;
+  //  PVector [] pf = new PVector[numOfpoints];
+  //  for (int i=0; i<numOfpoints; i++) pf[i] = new PVector(0, 0);
     
-    for ( int s=-1; s<=1; s+=2 ) {
+  //  for ( int s=-1; s<=1; s+=2 ) {
       
-      for ( int j=0; j<orthSize; j++ ) {
-        float pdl = p.linear( cpoints[j].position.x+0.5*s*thk*orth[j].nx, cpoints[j].position.y+0.5*s*thk*orth[j].ny )*orth[j].l;
-        PVector pTemp = new PVector(s*pdl*orth[j].nx, s*pdl*orth[j].ny);
-        pf[j].sub(pTemp);
-        pf[j+1].sub(pTemp);
-      }
-    }
-    for (int j=1; j<numOfpoints-1; j++) pf[j].div(2);
+  //    for ( int j=0; j<orthSize; j++ ) {
+  //      float pdl = p.linear( cpoints[j].position.x+0.5*s*thk*orth[j].nx, cpoints[j].position.y+0.5*s*thk*orth[j].ny )*orth[j].l;
+  //      PVector pTemp = new PVector(s*pdl*orth[j].nx, s*pdl*orth[j].ny);
+  //      pf[j].sub(pTemp);
+  //      pf[j+1].sub(pTemp);
+  //    }
+  //  }
+  //  for (int j=1; j<numOfpoints-1; j++) pf[j].div(2);
     
-    return pf;
-  }
+  //  return pf;
+  //}
   
-  // calculate the shear stress force at each point
-  PVector [] stressForcePoints ( VectorField Vel, float nu ) {
+  //// calculate the shear stress force at each point
+  //PVector [] stressForcePoints ( VectorField Vel, float nu ) {
     
-    Field omega = Vel.curl();
+  //  Field omega = Vel.curl();
     
-    int orthSize = orth.length;
-    PVector [] ps = new PVector[numOfpoints];
-    for (int i=0; i<numOfpoints; i++) ps[i] = new PVector(0, 0);
+  //  int orthSize = orth.length;
+  //  PVector [] ps = new PVector[numOfpoints];
+  //  for (int i=0; i<numOfpoints; i++) ps[i] = new PVector(0, 0);
     
-    for ( int s=-1; s<=1; s+=2 ) {
-      for ( int j=0; j<orthSize; j++ ) {
-        float omegaZVal = omega.linear( cpoints[j].position.x+0.5*s*thk*orth[j].nx, cpoints[j].position.y+0.5*s*thk*orth[j].ny );
-        PVector pTemp = new PVector(s*omegaZVal*orth[j].ny, s*omegaZVal*orth[j].nx);
-        ps[j].add(pTemp);
-        ps[j+1].add(pTemp);
-      }
-    }
-    for (int j=1; j<numOfpoints-1; j++) ps[j].div(2);
-    for (int j=0; j<numOfpoints; j++) ps[j].mult(nu);
+  //  for ( int s=-1; s<=1; s+=2 ) {
+  //    for ( int j=0; j<orthSize; j++ ) {
+  //      float omegaZVal = omega.linear( cpoints[j].position.x+0.5*s*thk*orth[j].nx, cpoints[j].position.y+0.5*s*thk*orth[j].ny );
+  //      PVector pTemp = new PVector(s*omegaZVal*orth[j].ny, s*omegaZVal*orth[j].nx);
+  //      ps[j].add(pTemp);
+  //      ps[j+1].add(pTemp);
+  //    }
+  //  }
+  //  for (int j=1; j<numOfpoints-1; j++) ps[j].div(2);
+  //  for (int j=0; j<numOfpoints; j++) ps[j].mult(nu);
     
-    return ps;
-  }
+  //  return ps;
+  //}
   
-  // Update based on Predictor-Corrector Scheme (gravity only)
-  void update(float dt, PVector p) {
+  //// Update based on Predictor-Corrector Scheme (gravity only)
+  //void update(float dt, PVector p) {
     
-    if (dt>dtmax) {
-      println("WARNING dt constrained to maximum permitted:"+dtmax);
-      dt = dtmax;
-    }
+  //  if (dt>dtmax) {
+  //    println("WARNING dt constrained to maximum permitted:"+dtmax);
+  //    dt = dtmax;
+  //  }
     
-    // Apply Forces for this step
-    ClearForces(); // clear forces from control points 
-    ApplyIntForces(); // apply spring-damper forces
-    ApplyGravity( p ); // apply gravity
+  //  // Apply Forces for this step
+  //  ClearForces(); // clear forces from control points 
+  //  ApplyIntForces(); // apply spring-damper forces
+  //  ApplyGravity( p ); // apply gravity
     
-    // run the update through control points
-    for (ControlPoint cp : cpoints) cp.update( dt );
+  //  // run the update through control points
+  //  for (ControlPoint cp : cpoints) cp.update( dt );
 
-    this.UpdateCenter();
-    super.getOrth();
-    super.getBox();
-  } // end of update (prediction)
+  //  this.UpdateCenter();
+  //  super.getOrth();
+  //  super.getBox();
+  //} // end of update (prediction)
   
-  void update2(float dt, PVector p) {
+  //void update2(float dt, PVector p) {
     
-    if (dt>dtmax) {
-      println("WARNING dt constrained to maximum permitted:"+dtmax);
-      dt = dtmax;
-    }
+  //  if (dt>dtmax) {
+  //    println("WARNING dt constrained to maximum permitted:"+dtmax);
+  //    dt = dtmax;
+  //  }
     
-    // Apply Forces for the correction
-    ClearForces(); // clear forces from control points 
-    ApplyIntForces(); // apply spring-damper forces
-    ApplyGravity( p ); // apply gravity
+  //  // Apply Forces for the correction
+  //  ClearForces(); // clear forces from control points 
+  //  ApplyIntForces(); // apply spring-damper forces
+  //  ApplyGravity( p ); // apply gravity
     
-    // run the update through control points
-    for (ControlPoint cp : cpoints) cp.update2( dt );
+  //  // run the update through control points
+  //  for (ControlPoint cp : cpoints) cp.update2( dt );
 
-    this.UpdateCenter();
-    super.getOrth();
-    super.getBox();
-  } // end of Trapezoid
+  //  this.UpdateCenter();
+  //  super.getOrth();
+  //  super.getBox();
+  //} // end of Trapezoid
   
-  // Alternative Update based on Predictor-Corrector Scheme (gravity only)
-  void updateAlt(float dt, PVector p) {
+  //// Alternative Update based on Predictor-Corrector Scheme (gravity only)
+  //void updateAlt(float dt, PVector p) {
     
-    if (dt>dtmax) {
-      println("WARNING dt constrained to maximum permitted:"+dtmax);
-      dt = dtmax;
-    }
+  //  if (dt>dtmax) {
+  //    println("WARNING dt constrained to maximum permitted:"+dtmax);
+  //    dt = dtmax;
+  //  }
     
-    // Apply Forces for this step
-    ClearForces(); // clear forces from control points 
-    ApplyIntForces(); // apply spring-damper forces
-    ApplyGravity( p ); // apply gravity
+  //  // Apply Forces for this step
+  //  ClearForces(); // clear forces from control points 
+  //  ApplyIntForces(); // apply spring-damper forces
+  //  ApplyGravity( p ); // apply gravity
     
-    // run the update through control points
-    for (ControlPoint cp : cpoints) cp.updateAlt( dt );
+  //  // run the update through control points
+  //  for (ControlPoint cp : cpoints) cp.updateAlt( dt );
 
-    this.UpdateCenter();
-    super.getOrth();
-    super.getBox();
-  } // end of update (alternative prediction, already 2nd order in space)
+  //  this.UpdateCenter();
+  //  super.getOrth();
+  //  super.getBox();
+  //} // end of update (alternative prediction, already 2nd order in space)
   
-  void updateAlt2(float dt, PVector p) {
+  //void updateAlt2(float dt, PVector p) {
     
-    if (dt>dtmax) {
-      println("WARNING dt constrained to maximum permitted:"+dtmax);
-      dt = dtmax;
-    }
+  //  if (dt>dtmax) {
+  //    println("WARNING dt constrained to maximum permitted:"+dtmax);
+  //    dt = dtmax;
+  //  }
     
-    // Apply Forces for the correction
-    ClearForces(); // clear forces from control points
-    ApplyIntForces(); // apply spring-damper forces
-    ApplyGravity( p ); // apply gravity
+  //  // Apply Forces for the correction
+  //  ClearForces(); // clear forces from control points
+  //  ApplyIntForces(); // apply spring-damper forces
+  //  ApplyGravity( p ); // apply gravity
     
-    // run the update through control points
-    for (ControlPoint cp : cpoints) cp.updateAlt2( dt );
+  //  // run the update through control points
+  //  for (ControlPoint cp : cpoints) cp.updateAlt2( dt );
     
-  } // end of alternative prediction-correction (2nd step update velocity only)
+  //} // end of alternative prediction-correction (2nd step update velocity only)
   
-  /*************** Fluid present **********************************/
-  // Update based on Predictor-Corrector Scheme
-  void update( float dt, BDIM flow ) { update( dt, flow, new PVector(0,0)); }
-  void update( float dt, BDIM flow, PVector g) {
+  ///*************** Fluid present **********************************/
+  //// Update based on Predictor-Corrector Scheme
+  //void update( float dt, BDIM flow ) { update( dt, flow, new PVector(0,0)); }
+  //void update( float dt, BDIM flow, PVector g) {
     
-    if (dt>dtmax) {
-      println("WARNING dt constrained to maximum permitted:"+dtmax);
-      dt = dtmax;
-    }
-    PVector [] pressForce = new PVector[numOfpoints];
-    PVector [] stressForce = new PVector[numOfpoints];
+  //  if (dt>dtmax) {
+  //    println("WARNING dt constrained to maximum permitted:"+dtmax);
+  //    dt = dtmax;
+  //  }
+  //  PVector [] pressForce = new PVector[numOfpoints];
+  //  PVector [] stressForce = new PVector[numOfpoints];
     
-    pressForce = pressForcePoints ( flow.p ); // get pressure force
-    stressForce = stressForcePoints( flow.u, flow.nu ); // get stress force
+  //  pressForce = pressForcePoints ( flow.p ); // get pressure force
+  //  stressForce = stressForcePoints( flow.u, flow.nu ); // get stress force
     
-    // Apply Forces for this step
-    ClearForces(); // clear forces from control points
-    ApplyIntForces(); // apply spring-damper forces
-    ApplyExtForces( pressForce ); // apply pressure
-    ApplyExtForces( stressForce ); // apply stress
-    ApplyGravity( g ); // apply gravity (if any)
+  //  // Apply Forces for this step
+  //  ClearForces(); // clear forces from control points
+  //  ApplyIntForces(); // apply spring-damper forces
+  //  ApplyExtForces( pressForce ); // apply pressure
+  //  ApplyExtForces( stressForce ); // apply stress
+  //  ApplyGravity( g ); // apply gravity (if any)
     
-    // run the update through control points
-    for (ControlPoint cp : cpoints) cp.update( dt );
+  //  // run the update through control points
+  //  for (ControlPoint cp : cpoints) cp.update( dt );
 
-    this.UpdateCenter();
-    super.getOrth();
-    super.getBox();
-  } // end of update (prediction)
+  //  this.UpdateCenter();
+  //  super.getOrth();
+  //  super.getBox();
+  //} // end of update (prediction)
   
-  void update2( float dt, BDIM flow ) { update2( dt, flow, new PVector(0,0)); }
-  void update2(float dt, BDIM flow, PVector g) {
+  //void update2( float dt, BDIM flow ) { update2( dt, flow, new PVector(0,0)); }
+  //void update2(float dt, BDIM flow, PVector g) {
     
-    if (dt>dtmax) {
-      println("WARNING dt constrained to maximum permitted:"+dtmax);
-      dt = dtmax;
-    }
-    PVector [] pressForce = new PVector[numOfpoints];
-    PVector [] stressForce = new PVector[numOfpoints];
+  //  if (dt>dtmax) {
+  //    println("WARNING dt constrained to maximum permitted:"+dtmax);
+  //    dt = dtmax;
+  //  }
+  //  PVector [] pressForce = new PVector[numOfpoints];
+  //  PVector [] stressForce = new PVector[numOfpoints];
     
-    pressForce = pressForcePoints ( flow.p ); // get pressure force
-    stressForce = stressForcePoints( flow.u, flow.nu ); // get stress force
+  //  pressForce = pressForcePoints ( flow.p ); // get pressure force
+  //  stressForce = stressForcePoints( flow.u, flow.nu ); // get stress force
     
-    // Apply Forces for the correction
-    ClearForces(); // clear forces from control points
-    ApplyIntForces(); // apply spring-damper forces
-    ApplyExtForces( pressForce ); // apply pressure
-    ApplyExtForces( stressForce ); // apply stress
-    ApplyGravity( g ); // apply gravity (if any)
+  //  // Apply Forces for the correction
+  //  ClearForces(); // clear forces from control points
+  //  ApplyIntForces(); // apply spring-damper forces
+  //  ApplyExtForces( pressForce ); // apply pressure
+  //  ApplyExtForces( stressForce ); // apply stress
+  //  ApplyGravity( g ); // apply gravity (if any)
     
-    // run the update through control points
-    for (ControlPoint cp : cpoints) cp.update2( dt );
+  //  // run the update through control points
+  //  for (ControlPoint cp : cpoints) cp.update2( dt );
       
-    this.UpdateCenter();
-    super.getOrth();
-    super.getBox();
-  } // end of Trapezoid
+  //  this.UpdateCenter();
+  //  super.getOrth();
+  //  super.getBox();
+  //} // end of Trapezoid
   
-  // Alternative Update based on Predictor-Corrector Scheme
-  void updateAlt( float dt, BDIM flow ) { updateAlt( dt, flow, new PVector(0,0)); }
-  void updateAlt( float dt, BDIM flow, PVector g) {
+  //// Alternative Update based on Predictor-Corrector Scheme
+  //void updateAlt( float dt, BDIM flow ) { updateAlt( dt, flow, new PVector(0,0)); }
+  //void updateAlt( float dt, BDIM flow, PVector g) {
     
-    if (dt>dtmax) {
-      println("WARNING dt constrained to maximum permitted:"+dtmax);
-      dt = dtmax;
-    }
-    PVector [] pressForce = new PVector[numOfpoints];
-    PVector [] stressForce = new PVector[numOfpoints];
+  //  if (dt>dtmax) {
+  //    println("WARNING dt constrained to maximum permitted:"+dtmax);
+  //    dt = dtmax;
+  //  }
+  //  PVector [] pressForce = new PVector[numOfpoints];
+  //  PVector [] stressForce = new PVector[numOfpoints];
     
-    pressForce = pressForcePoints ( flow.p ); // get pressure force
-    stressForce = stressForcePoints( flow.u, flow.nu ); // get stress force
+  //  pressForce = pressForcePoints ( flow.p ); // get pressure force
+  //  stressForce = stressForcePoints( flow.u, flow.nu ); // get stress force
     
-    // Apply Forces for this step
-    ClearForces(); // clear forces from control points
-    ApplyIntForces(); // apply spring-damper forces
-    ApplyExtForces( pressForce ); // apply pressure
-    ApplyExtForces( stressForce ); // apply stress
-    ApplyGravity( g ); // apply gravity (if any)
+  //  // Apply Forces for this step
+  //  ClearForces(); // clear forces from control points
+  //  ApplyIntForces(); // apply spring-damper forces
+  //  ApplyExtForces( pressForce ); // apply pressure
+  //  ApplyExtForces( stressForce ); // apply stress
+  //  ApplyGravity( g ); // apply gravity (if any)
     
-    // run the update through control points
-    for (ControlPoint cp : cpoints) cp.updateAlt( dt );
+  //  // run the update through control points
+  //  for (ControlPoint cp : cpoints) cp.updateAlt( dt );
     
-    this.UpdateCenter();
-    super.getOrth();
-    super.getBox();
-  } // end of update (prediction)
+  //  this.UpdateCenter();
+  //  super.getOrth();
+  //  super.getBox();
+  //} // end of update (prediction)
   
-  void updateAlt2( float dt, BDIM flow ) { updateAlt2( dt, flow, new PVector(0,0)); }
-  void updateAlt2(float dt, BDIM flow, PVector g) {
+  //void updateAlt2( float dt, BDIM flow ) { updateAlt2( dt, flow, new PVector(0,0)); }
+  //void updateAlt2(float dt, BDIM flow, PVector g) {
     
-    if (dt>dtmax) {
-      println("WARNING dt constrained to maximum permitted:"+dtmax);
-      dt = dtmax;
-    }
-    PVector [] pressForce = new PVector[numOfpoints];
-    PVector [] stressForce = new PVector[numOfpoints];
+  //  if (dt>dtmax) {
+  //    println("WARNING dt constrained to maximum permitted:"+dtmax);
+  //    dt = dtmax;
+  //  }
+  //  PVector [] pressForce = new PVector[numOfpoints];
+  //  PVector [] stressForce = new PVector[numOfpoints];
     
-    pressForce = pressForcePoints ( flow.p ); // get pressure force
-    stressForce = stressForcePoints( flow.u, flow.nu ); // get stress
+  //  pressForce = pressForcePoints ( flow.p ); // get pressure force
+  //  stressForce = stressForcePoints( flow.u, flow.nu ); // get stress
     
-    // run the update through control points
-    ClearForces(); // clear forces from control points
-    ApplyIntForces(); // apply spring-damper forces
-    ApplyExtForces( pressForce ); // apply pressure
-    ApplyExtForces( stressForce ); // apply stress
-    ApplyGravity( g ); // apply gravity (if any)
+  //  // run the update through control points
+  //  ClearForces(); // clear forces from control points
+  //  ApplyIntForces(); // apply spring-damper forces
+  //  ApplyExtForces( pressForce ); // apply pressure
+  //  ApplyExtForces( stressForce ); // apply stress
+  //  ApplyGravity( g ); // apply gravity (if any)
     
-    // calculate acceleration for the correction
-    for (ControlPoint cp : cpoints) cp.updateAlt2( dt );
-  } // end of Trapezoid
+  //  // calculate acceleration for the correction
+  //  for (ControlPoint cp : cpoints) cp.updateAlt2( dt );
+  //} // end of Trapezoid
   
   // Calculate damping coefficient for numerical purposes
   float Determine_damping() {

@@ -87,7 +87,7 @@ class Spring {
   }
   
   // Set thickness
-  void matchThickness() { thick = 0.5*(p1.diameter+p2.diameter); }
+  void matchThickness() { thick = (p1.radius+p2.radius); }
   
   // Apply Forces on connected particles
   void ApplyAllForces() {

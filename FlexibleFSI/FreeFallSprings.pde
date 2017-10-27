@@ -48,7 +48,7 @@ class FreeFallSprings {
     for (int i=0; i<N; i++) {
       cpoints[2*i] = new ControlPoint( new PVector(view.x.inE/4.,view.y.inE*(i+1)/(float)N), 5,  10, view );
       cpoints[2*i+1] = new ControlPoint( new PVector(3*view.x.inE/4.,view.y.inE*(i+1)/(float)N), 5,  10, view );
-      float th = (cpoints[2*i].diameter + cpoints[2*i+1].diameter)/2.;
+      float th = (cpoints[2*i].radius + cpoints[2*i+1].radius);
       springs[i] = new Spring(cpoints[2*i], cpoints[2*i+1], (i+1)*nx/8., 5, 0.5, th, view );
     }
     
@@ -64,7 +64,7 @@ class FreeFallSprings {
       cp.updateAlt( 0.1 );
       cp.updateAlt2( 0.1 );
     }
-    collider.HandleCollisions();
+    //collider.HandleCollisions();
     for (ControlPoint cp : cpoints) cp.display();
     for (Spring sp: springs) sp.display();
   }
